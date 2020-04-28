@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-const ModalPicture = props => {
+const ModalPicture = (props) => {
   // eslint-disable-next-line operator-linebreak
   const del =
     props.has_image === true ? (
@@ -21,7 +21,7 @@ const ModalPicture = props => {
       </Modal.Header>
       <Modal.Body>
         <Form.Control onChange={props.photoHandler} type="file" />
-        <p>{props.errormessage}</p>
+        <p className="errormessage">{props.errormessage}</p>
       </Modal.Body>
       <Modal.Footer>
         {del}

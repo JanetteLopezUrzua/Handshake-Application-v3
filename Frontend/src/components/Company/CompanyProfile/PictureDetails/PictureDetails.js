@@ -1,6 +1,5 @@
 import React from "react";
 import axios from "axios";
-import cookie from "react-cookies";
 import Card from "react-bootstrap/Card";
 import Image from "react-bootstrap/Image";
 import Button from "react-bootstrap/Button";
@@ -9,8 +8,15 @@ import Col from "react-bootstrap/Col";
 import { FaCamera } from "react-icons/fa";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Form from "react-bootstrap/Form";
-import { MdEdit } from 'react-icons/md';
+import { MdEdit } from "react-icons/md";
 import ModalPicture from "./Modal";
+import { graphql, compose } from "react-apollo";
+import { getCompanyPictureInfoQuery } from "../../../queries/Company/queries";
+import {
+  updateCompanyPictureInfoMutation,
+  updateCompanyNameMutation,
+  deleteCompanyPictureMutation,
+} from "../../../mutation/Company/mutations";
 
 class PictureDetails extends React.Component {
   constructor() {
@@ -20,51 +26,18 @@ class PictureDetails extends React.Component {
       id: "",
       name: "",
       show: false,
-      has_image: false,
       data: "",
       photo: "",
       validimage: "",
       errormessage: "",
       nameerrormessage: "",
-      editWasTriggered: false
+      editWasTriggered: false,
     };
   }
 
-  static getDerivedStateFromProps = props => ({ id: props.id });
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios
-      .get(`http://localhost:3001/company/pictureinfo/${this.state.id}`)
-      .then(response => {
-        const info = response.data;
-
-        console.log(response.data);
-        this.setState({
-          name: info.name,
-          photo: info.photo
-        });
-
-        if (this.state.photo === "" || this.state.photo === null) {
-          this.setState({
-            has_image: false
-          });
-        } else {
-          this.setState({
-            has_image: true
-          });
-        }
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(error.response.data);
-      });
-  };
-
-  photoHandler = e => {
+  photoHandler = (e) => {
     e.preventDefault();
     const file = e.target.files[0];
 
@@ -72,12 +45,12 @@ class PictureDetails extends React.Component {
     this.getImage(file);
   };
 
-  getImage = file => {
+  getImage = (file) => {
     const data = new FormData();
 
     if (file && file.type.match("image.*")) {
-      data.append('file', file);
-      data.append('name', 'file');
+      data.append("file", file);
+      data.append("name", "file");
       console.log(data);
       this.setState({
         data,
@@ -87,40 +60,51 @@ class PictureDetails extends React.Component {
     } else {
       this.setState({
         validimage: false,
-        errormessage: "File not accepted. Choose an Image."
+        errormessage: "File not accepted. Choose an Image.",
       });
     }
   };
 
-  onUpload = e => {
+  onUpload = async (e) => {
     console.log(this.state.validimage);
     e.preventDefault();
     if (this.state.validimage === true) {
       console.log(this.state.data);
-      axios
-        .post('http://localhost:3001/upload', this.state.data)
-        .then(response => {
-          console.log("res", response.data);
-          console.log(response.data);
-          const data = {
-            id: this.state.id,
-            photo: response.data
-          };
 
-          return axios.post("http://localhost:3001/company/pictureinfo", data);
-        })
-        .then(response => {
-          console.log(response);
+      try {
+        let response = await axios.post(
+          "http://localhost:3001/upload",
+          this.state.data
+        );
 
-          this.setState({
-            has_image: true,
-            show: false,
+        console.log(response.data);
+
+        let photo = response.data;
+
+        try {
+          let data = await this.props.updateCompanyPictureInfoMutation({
+            variables: {
+              id: this.props.id,
+              photo: photo,
+            },
+            refetchQueries: [
+              {
+                query: getCompanyPictureInfoQuery,
+                variables: { id: this.props.id },
+              },
+            ],
           });
+
+          console.log(data);
+
+          this.setState({ show: false });
           this.props.photochange();
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        } catch (err) {
+          console.log(err.message);
+        }
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 
@@ -128,126 +112,153 @@ class PictureDetails extends React.Component {
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
       show: false,
-      errormessage: ""
+      errormessage: "",
     });
   };
 
   handleShow = () =>
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
-      show: true
+      show: true,
     });
 
-  onDelete = e => {
+  onDelete = async (e) => {
     e.preventDefault();
 
-    axios
-      .delete("http://localhost:3001/company/pictureinfo/delete", {
-        data: { id: this.state.id }
-      })
-      .then(response => {
-        console.log(response);
-        this.setState({
-          show: false,
-          has_image: false,
-        });
-        this.props.photochange();
-      })
-      .catch(error => {
-        console.log(error);
+    let { id } = this.state;
+
+    try {
+      let data = await this.props.deleteCompanyPictureMutation({
+        variables: {
+          id: id,
+        },
+        refetchQueries: [
+          {
+            query: getCompanyPictureInfoQuery,
+            variables: { id: this.props.id },
+          },
+        ],
       });
 
-    // this.getInfo();
+      console.log(data);
+
+      this.setState({ show: false });
+      this.props.photochange();
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   handleClick = (e) => {
     e.preventDefault();
-    console.log("button was pressed!!!!");
     this.setState({ editWasTriggered: true });
-
-    // this.getInfo();
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
 
     const wspatt = new RegExp("^ *$");
 
     if (wspatt.test(this.state.name) || this.state.name === "") {
       this.setState({
-        nameerrormessage: "Enter Company Name"
+        nameerrormessage: "Enter Company Name",
       });
     } else {
-      const data = {
-        id: this.state.id,
-        name: this.state.name,
-      };
+      let { id, name } = this.state;
 
-      axios.post("http://localhost:3001/company/personalinfoname", data)
-        .then(response => {
-          console.log(response);
-          this.setState({
-            nameerrormessage: ""
-          });
-        })
-        .catch(error => {
-          console.log(error);
+      try {
+        let data = await this.props.updateCompanyNameMutation({
+          variables: {
+            id: id,
+            name: name,
+          },
+          refetchQueries: [
+            {
+              query: getCompanyPictureInfoQuery,
+              variables: { id: this.props.id },
+            },
+          ],
         });
 
-      this.setState({ editWasTriggered: false });
+        console.log(data);
+
+        this.setState({ nameerrormessage: "", editWasTriggered: false });
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 
   handleCancel = () => {
-    this.setState({ nameerrormessage: "", editWasTriggered: false });
-    this.getInfo();
+    this.setState({ name: "", nameerrormessage: "", editWasTriggered: false });
   };
 
-  nameChangeHandler = e => {
+  nameChangeHandler = (e) => {
     this.setState({
-      name: e.target.value
+      name: e.target.value,
     });
   };
 
   render() {
+    let data = this.props.data;
+    console.log(data);
+
+    let name = null;
+    let photo = null;
+    if (!data.loading) {
+      name = this.props.data.company.name;
+      photo = this.props.data.company.photo;
+    }
+
+    let has_image = null;
+    if (photo === null) has_image = false;
+    else has_image = true;
+
     let profilePhoto = "";
 
-    if (this.state.has_image === false) {
-      if (cookie.load('id') === this.state.id && cookie.load('user') === "company") {
+    if (has_image === false) {
+      if (
+        localStorage.getItem("id") === this.state.id &&
+        localStorage.getItem("type") === "Company"
+      ) {
         profilePhoto = (
           <Button className="CompanyProfilePicButton" onClick={this.handleShow}>
             <Row>
               <FaCamera size={25} style={{ margin: "0 auto" }} />
             </Row>
             <Row>
-              <h5 style={{ margin: "0 auto", fontSize: "13px" }}>Add a Photo</h5>
+              <h5 style={{ margin: "0 auto", fontSize: "13px" }}>
+                Add a Photo
+              </h5>
             </Row>
           </Button>
         );
       } else {
         profilePhoto = (
-          <p
-            className="CompanyProfilePicNoImage"
-          >
-            {this.state.name.charAt(0)}
-          </p>
+          <p className="CompanyProfilePicNoImage">{name.charAt(0)}</p>
         );
       }
-    } else if (this.state.has_image === true) {
-      if (cookie.load('id') === this.state.id && cookie.load('user') === "company") {
+    } else if (has_image === true) {
+      if (
+        localStorage.getItem("id") === this.state.id &&
+        localStorage.getItem("type") === "Company"
+      ) {
         profilePhoto = (
           <>
             <Image
               className="CompanyProfilePicImage"
-              src={`http://localhost:3001/resumesandimages/${this.state.photo}`}
+              src={`http://localhost:3001/resumesandimages/${photo}`}
             />
-            <Button className="CompanyProfilePicButtononImage" onClick={this.handleShow}>
+            <Button
+              className="CompanyProfilePicButtononImage"
+              onClick={this.handleShow}
+            >
               <Row>
                 <FaCamera size={25} style={{ margin: "0 auto" }} />
               </Row>
               <Row>
                 <h5 style={{ margin: "0 auto", fontSize: "13px" }}>
-                    Change Photo
+                  Change Photo
                 </h5>
               </Row>
             </Button>
@@ -258,14 +269,17 @@ class PictureDetails extends React.Component {
           <>
             <Image
               className="CompanyProfilePicImage"
-              src={`http://localhost:3001/resumesandimages/${this.state.photo}`}
+              src={`http://localhost:3001/resumesandimages/${photo}`}
             />
           </>
         );
       }
     }
     let button = "";
-    if (cookie.load('id') === this.state.id && cookie.load('user') === "company") {
+    if (
+      localStorage.getItem("id") === this.state.id &&
+      localStorage.getItem("type") === "Company"
+    ) {
       button = (
         <Col style={{ textAlign: "right" }}>
           <Button className="editbutton" onClick={this.handleClick}>
@@ -275,11 +289,14 @@ class PictureDetails extends React.Component {
       );
     }
 
-
     let display = "";
     display = (
       <Row>
-        <Col><Card.Title style={{ textTransform: "capitalize" }}>{this.state.name}</Card.Title></Col>
+        <Col>
+          <Card.Title style={{ textTransform: "capitalize" }}>
+            {name}
+          </Card.Title>
+        </Col>
         {button}
       </Row>
     );
@@ -289,12 +306,24 @@ class PictureDetails extends React.Component {
         <Card>
           <Form.Group controlId="Name">
             <Form.Label className="labels">Company Name</Form.Label>
-            <Form.Control style={{ textTransform: "capitalize" }} onChange={this.nameChangeHandler} name="name" type="text" value={this.name} />
-            <p className="errormessage" style={{ fontSize: "13px" }}>{this.state.nameerrormessage}</p>
+            <Form.Control
+              style={{ textTransform: "capitalize" }}
+              onChange={this.nameChangeHandler}
+              name="name"
+              type="text"
+              value={this.state.name}
+            />
+            <p className="errormessage" style={{ fontSize: "13px" }}>
+              {this.state.nameerrormessage}
+            </p>
           </Form.Group>
           <Card.Footer>
-            <Button className="cancel" onClick={this.handleCancel}>Cancel</Button>
-            <Button className="save" onClick={this.handleSave}>Save</Button>
+            <Button className="cancel" onClick={this.handleCancel}>
+              Cancel
+            </Button>
+            <Button className="save" onClick={this.handleSave}>
+              Save
+            </Button>
           </Card.Footer>
         </Card>
       );
@@ -308,12 +337,9 @@ class PictureDetails extends React.Component {
           onUpload={this.onUpload}
           photoHandler={this.photoHandler}
           errormessage={this.state.errormessage}
-          has_image={this.state.has_image}
+          has_image={has_image}
           onDelete={this.onDelete}
         />
-        {/* <Container style={{ height: "200px" }}>
-          <Card.Img className="CompanyProfilePicImage" variant="top" src="" />
-        </Container> */}
         <Row>
           <Col sm={2}>
             <Card style={{ height: "122px", width: "122px", padding: "0" }}>
@@ -323,9 +349,14 @@ class PictureDetails extends React.Component {
           <Col sm={10}>
             <Card.Body style={{ paddingBottom: "0" }}>
               <NavDropdown.Divider style={{ color: "rgba(0, 0, 0, 0.98)" }} />
-              <Card style={{
-                border: "none", boxShadow: "none", color: "rgba(0, 0, 0, 0.98)", fontSize: "24px", fontWeight: "500"
-              }}
+              <Card
+                style={{
+                  border: "none",
+                  boxShadow: "none",
+                  color: "rgba(0, 0, 0, 0.98)",
+                  fontSize: "24px",
+                  fontWeight: "500",
+                }}
               >
                 {display}
               </Card>
@@ -337,4 +368,17 @@ class PictureDetails extends React.Component {
   }
 }
 
-export default PictureDetails;
+export default compose(
+  graphql(getCompanyPictureInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateCompanyPictureInfoMutation, {
+    name: "updateCompanyPictureInfoMutation",
+  }),
+  graphql(updateCompanyNameMutation, {
+    name: "updateCompanyNameMutation",
+  }),
+  graphql(deleteCompanyPictureMutation, {
+    name: "deleteCompanyPictureMutation",
+  })
+)(PictureDetails);

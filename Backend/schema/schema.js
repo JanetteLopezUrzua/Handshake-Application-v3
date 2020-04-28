@@ -118,22 +118,22 @@ const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   description: "Root Query",
   fields: {
-    companyAuth: {
+    company: {
       type: CompanyType,
-      args: { email: { type: GraphQLString } },
+      args: { id: { type: GraphQLID } },
       async resolve(parent, args) {
-        let { email } = args;
-        let company = await Company.findOne({ email });
+        let { id } = args;
+        let company = await Company.findById(id).select("-password");
         console.log(company);
         return company;
       },
     },
-    studentAuth: {
+    student: {
       type: StudentType,
-      args: { email: { type: GraphQLString } },
+      args: { id: { type: GraphQLID } },
       async resolve(parent, args) {
-        let { email } = args;
-        let student = await Company.findOne({ email });
+        let { id } = args;
+        let student = await Company.findById(id).select("-password");
         console.log(student);
         return student;
       },
@@ -200,6 +200,99 @@ const Mutation = new GraphQLObjectType({
         if (!isPasswordAMatch) {
           throw new Error("Invalid Credentials");
         }
+
+        return company;
+      },
+    },
+    updateCompanyBasicInfo: {
+      type: CompanyType,
+      args: {
+        id: { type: GraphQLID },
+        location: { type: GraphQLString },
+        description: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let { id, location, description } = args;
+
+        let data = {
+          location,
+          description,
+        };
+        console.log(id);
+        let company = await Company.findByIdAndUpdate(id, data, { new: true });
+
+        return company;
+      },
+    },
+    updateCompanyContactInfo: {
+      type: CompanyType,
+      args: {
+        id: { type: GraphQLID },
+        email: { type: GraphQLString },
+        phonenumber: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let { id, email, phonenumber } = args;
+
+        let data = {
+          email,
+          phonenumber,
+        };
+        console.log(id);
+        let company = await Company.findByIdAndUpdate(id, data, { new: true });
+
+        return company;
+      },
+    },
+    updateCompanyPictureInfo: {
+      type: CompanyType,
+      args: {
+        id: { type: GraphQLID },
+        photo: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let { id, photo } = args;
+
+        let data = {
+          photo,
+        };
+        console.log(id);
+        let company = await Company.findByIdAndUpdate(id, data, { new: true });
+
+        return company;
+      },
+    },
+    updateCompanyName: {
+      type: CompanyType,
+      args: {
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let { id, name } = args;
+
+        let data = {
+          name,
+        };
+        console.log(id);
+        let company = await Company.findByIdAndUpdate(id, data, { new: true });
+
+        return company;
+      },
+    },
+    deleteCompanyPicture: {
+      type: CompanyType,
+      args: {
+        id: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        let { id } = args;
+
+        let company = await Company.findByIdAndUpdate(
+          id,
+          { $unset: { photo: null } },
+          { new: true }
+        );
 
         return company;
       },

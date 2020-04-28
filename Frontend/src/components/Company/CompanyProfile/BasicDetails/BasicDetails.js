@@ -1,7 +1,9 @@
 import React from "react";
-import axios from "axios";
 import DisplayInfo from "./DisplayInfo";
 import EditInfo from "./EditInfo";
+import { graphql, compose } from "react-apollo";
+import { getCompanyBasicInfoQuery } from "../../../queries/Company/queries";
+import { updateCompanyBasicInfoMutation } from "../../../mutation/Company/mutations";
 
 class BasicDetails extends React.Component {
   constructor() {
@@ -11,91 +13,71 @@ class BasicDetails extends React.Component {
       id: "",
       location: "",
       description: "",
-      editWasTriggered: false
+      editWasTriggered: false,
+      errormessages: "",
     };
   }
 
-  static getDerivedStateFromProps = props => ({ id: props.id });
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios
-      .get(`http://localhost:3001/company/personalinfo/${this.state.id}`)
-      .then(response => {
-        const info = response.data;
-
-        const wspatt = new RegExp("^ *$");
-
-        if (info.name === null || wspatt.test(info.name)) {
-          info.name = "";
-        }
-        if (info.location === null || wspatt.test(info.location)) {
-          info.location = "";
-        }
-        if (info.description === null || wspatt.test(info.description)) {
-          info.description = "";
-        }
-
-        this.setState({
-          location: info.location,
-          description: info.description
-        });
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  };
-
-  handleClick = e => {
+  handleClick = (e) => {
     e.preventDefault();
-    console.log("button was pressed!!!!");
     this.setState({ editWasTriggered: true });
-
-    // this.getInfo();
   };
 
-  locationChangeHandler = e => {
+  locationChangeHandler = (e) => {
     this.setState({
-      location: e.target.value
+      location: e.target.value,
     });
   };
 
-  descriptionChangeHandler = e => {
+  descriptionChangeHandler = (e) => {
     this.setState({
-      description: e.target.value
+      description: e.target.value,
     });
   };
 
-  handleSave = e => {
+  handleSave = async (e) => {
     e.preventDefault();
-    const data = {
-      id: this.state.id,
-      location: this.state.location,
-      description: this.state.description
-    };
 
-    axios
-      .post("http://localhost:3001/company/personalinfo", data)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
+    let { id, location, description } = this.state;
+
+    try {
+      let data = await this.props.updateCompanyBasicInfoMutation({
+        variables: {
+          id: id,
+          location: location,
+          description: description,
+        },
+        refetchQueries: [
+          { query: getCompanyBasicInfoQuery, variables: { id: this.props.id } },
+        ],
       });
 
-    this.setState({ editWasTriggered: false });
+      console.log(data);
+
+      this.setState({ editWasTriggered: false });
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   handleCancel = () => {
-    this.setState({ editWasTriggered: false });
-    this.getInfo();
+    this.setState({ location: "", description: "", editWasTriggered: false });
   };
 
   render() {
-    const { location, description, editWasTriggered } = this.state;
+    let data = this.props.data;
+    console.log(data);
+
+    let location = null;
+    let description = null;
+    if (!data.loading) {
+      location = this.props.data.company.location;
+      description = this.props.data.company.description;
+    }
+
+    const { editWasTriggered } = this.state;
 
     let display = "";
     display = (
@@ -123,4 +105,11 @@ class BasicDetails extends React.Component {
   }
 }
 
-export default BasicDetails;
+export default compose(
+  graphql(getCompanyBasicInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateCompanyBasicInfoMutation, {
+    name: "updateCompanyBasicInfoMutation",
+  })
+)(BasicDetails);

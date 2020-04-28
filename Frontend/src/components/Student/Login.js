@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
 import "../components.css";
 import hsimage from "../../assets/Handshakebanner.jpg";
-import { graphql, compose } from "react-apollo";
+import { graphql } from "react-apollo";
 import { loginStudentMutation } from "../mutation/Student/mutations";
 
 class Login extends React.Component {
@@ -148,6 +148,6 @@ class Login extends React.Component {
   }
 }
 
-export default compose(
-  graphql(loginStudentMutation, { name: "loginStudentMutation" })
-)(Login);
+export default graphql(loginStudentMutation, { name: "loginStudentMutation" })(
+  Login
+);
