@@ -7,7 +7,7 @@ import { Redirect } from "react-router";
 import "../components.css";
 import hsimage from "../../assets/Handshakebanner.jpg";
 import { graphql, compose } from "react-apollo";
-import { addCompanyMutation } from "../mutation/mutations";
+import { addCompanyMutation } from "../mutation/Company/mutations";
 
 class Signup extends React.Component {
   constructor() {
@@ -141,9 +141,7 @@ class Signup extends React.Component {
     // if sign up then redirect to the company profile
     let redirectVar = null;
     const path = `/company/${localStorage.getItem("id")}`;
-    console.log(`/company/${localStorage.getItem("id")}`);
     if (localStorage.getItem("type") === "Company") {
-      console.log("redirect");
       redirectVar = <Redirect to={path} />;
     }
 

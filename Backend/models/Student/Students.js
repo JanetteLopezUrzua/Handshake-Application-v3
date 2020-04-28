@@ -1,133 +1,131 @@
 const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate");
 
 const StudentsSchema = new mongoose.Schema(
   {
     fname: {
       type: String,
-      required: true
+      required: true,
     },
     lname: {
       type: String,
-      required: true
+      required: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
       type: String,
-      required: true
+      required: true,
     },
     dob: {
       type: String,
-      required: false
+      required: false,
     },
     city: {
       type: String,
-      required: false
+      required: false,
     },
     state: {
       type: String,
-      required: false
+      required: false,
     },
     country: {
       type: String,
-      required: false
+      required: false,
     },
     photo: {
       type: String,
-      required: false
+      required: false,
     },
     objective: {
       type: String,
-      required: false
+      required: false,
     },
     phonenumber: {
       type: String,
-      required: false
+      required: false,
     },
     skillset: [
       {
         skill: {
           type: String,
-          required: false
-        }
-      }
+          required: false,
+        },
+      },
     ],
     schools: [
       {
         name: {
           type: String,
-          required: true
+          required: true,
         },
         primaryschool: {
           type: String,
-          required: false
+          required: false,
         },
         location: {
           type: String,
-          required: false
+          required: false,
         },
         degree: {
           type: String,
-          required: false
+          required: false,
         },
         major: {
           type: String,
-          required: false
+          required: false,
         },
         passingmonth: {
           type: Number,
-          required: false
+          required: false,
         },
         passingyear: {
           type: Number,
-          required: false
+          required: false,
         },
         gpa: {
           type: String,
-          required: false
-        }
-      }
+          required: false,
+        },
+      },
     ],
     jobs: [
       {
         companyname: {
           type: String,
-          required: true
+          required: true,
         },
         title: {
           type: String,
-          required: true
+          required: true,
         },
         startdatemonth: {
           type: Number,
-          required: false
+          required: false,
         },
         startdateyear: {
           type: Number,
-          required: false
+          required: false,
         },
         enddatemonth: {
           type: Number,
-          required: false
+          required: false,
         },
         enddateyear: {
           type: Number,
-          required: false
+          required: false,
         },
         description: {
           type: String,
-          required: false
-        }
-      }
-    ]
+          required: false,
+        },
+      },
+    ],
   },
   {
-    versionKey: false
+    versionKey: false,
   }
 );
-StudentsSchema.plugin(mongoosePaginate);
 module.exports = Students = mongoose.model("students", StudentsSchema);

@@ -2,13 +2,12 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import { Link } from 'react-router-dom';
-import axios from "axios";
-import cookie from "react-cookies";
+import { Link } from "react-router-dom";
 import { Redirect } from "react-router";
 import "../components.css";
-import hsimage from '../../assets/Handshakebanner.jpg';
-
+import hsimage from "../../assets/Handshakebanner.jpg";
+import { graphql, compose } from "react-apollo";
+import { addStudentMutation } from "../mutation/Student/mutations";
 
 class Signup extends React.Component {
   constructor() {
@@ -19,50 +18,44 @@ class Signup extends React.Component {
       email: "",
       password: "",
       college: "",
-      errormessages: {}
+      errormessages: {},
     };
   }
 
-  fnameChangeHandler = e => {
+  fnameChangeHandler = (e) => {
     this.setState({
-      fname: e.target.value
+      fname: e.target.value,
     });
   };
 
-  lnameChangeHandler = e => {
+  lnameChangeHandler = (e) => {
     this.setState({
-      lname: e.target.value
+      lname: e.target.value,
     });
   };
 
-  emailChangeHandler = e => {
+  emailChangeHandler = (e) => {
     this.setState({
-      email: e.target.value
+      email: e.target.value,
     });
   };
 
-  passwordChangeHandler = e => {
+  passwordChangeHandler = (e) => {
     this.setState({
-      password: e.target.value
+      password: e.target.value,
     });
   };
 
-  collegeChangeHandler = e => {
+  collegeChangeHandler = (e) => {
     this.setState({
-      college: e.target.value
+      college: e.target.value,
     });
   };
 
-  signup = e => {
+  signup = async (e) => {
     e.preventDefault();
 
-    const data = {
-      fname: this.state.fname,
-      lname: this.state.lname,
-      email: this.state.email,
-      password: this.state.password,
-      college: this.state.college
-    };
+    let { fname, lname, email, password, college } = this.state;
 
     let fnameerrormsg = "";
     let lnameerrormsg = "";
@@ -74,84 +67,80 @@ class Signup extends React.Component {
     const lettpatt = new RegExp("^[a-zA-Z ]*$");
     const wspatt = new RegExp("^ *$");
 
-    if (data.fname === "" || wspatt.test(data.fname)) {
+    if (fname === "" || wspatt.test(fname)) {
       fnameerrormsg = "Required. Enter First Name.";
-    } else if (!lettpatt.test(data.fname)) {
+    } else if (!lettpatt.test(fname)) {
       fnameerrormsg = "First name can include letters only";
     }
 
-    if (data.lname === "" || wspatt.test(data.lname)) {
+    if (lname === "" || wspatt.test(lname)) {
       lnameerrormsg = "Required. Enter Last Name.";
-    } else if (!lettpatt.test(data.lname)) {
+    } else if (!lettpatt.test(lname)) {
       lnameerrormsg = "Last name can include letters only";
     }
 
-    if (data.college === "" || wspatt.test(data.college)) {
+    if (college === "" || wspatt.test(college)) {
       collegeerrormsg = "Required. Enter College Name.";
-    } else if (!lettpatt.test(data.college)) {
+    } else if (!lettpatt.test(college)) {
       collegeerrormsg = "College name can include letters only";
     }
 
     // Check that email input is valid
     const emailpatt = new RegExp("\\S+@\\S+\\.\\S+");
 
-    if (data.email === "" || wspatt.test(data.email)) {
+    if (email === "" || wspatt.test(email)) {
       emailerrormsg = "Required. Enter Email.";
-    } else if (!emailpatt.test(data.email)) {
+    } else if (!emailpatt.test(email)) {
       emailerrormsg = "Email is not valid.";
     }
 
     // password is at least 8 characters and 1 number
     const passpatt = new RegExp("^[a-zA-Z0-9]{8,16}$");
 
-    if (data.password === "" || wspatt.test(data.password)) {
+    if (password === "" || wspatt.test(password)) {
       passerrormsg = "Required. Enter Password.";
-    } else if (!passpatt.test(data.password)) {
+    } else if (!passpatt.test(password)) {
       passerrormsg = "Password must be between 8 and 16 characters.";
     }
 
     if (
-      fnameerrormsg === ""
-      && lnameerrormsg === ""
-      && collegeerrormsg === ""
-      && emailerrormsg === ""
-      && passerrormsg === ""
+      fnameerrormsg === "" &&
+      lnameerrormsg === "" &&
+      collegeerrormsg === "" &&
+      emailerrormsg === "" &&
+      passerrormsg === ""
     ) {
-      axios.defaults.withCredentials = true;
+      try {
+        let data = await this.props.addStudentMutation({
+          variables: {
+            fname: fname,
+            lname: lname,
+            email: email,
+            password: password,
+            college: college,
+          },
+        });
 
-      axios
-        .post("http://localhost:3001/student/signup", data)
-        .then(response => {
-          console.log("Status Code : ", response.status);
-          const data2 = {
-            id: cookie.load('id'),
-            schoolname: this.state.college,
-            primaryschool: "true",
-            location: "",
-            degree: "",
-            major: "",
-            passingmonth: "",
-            passingyear: 0,
-            gpa: 0,
-          };
+        console.log(data);
 
-          return axios.post("http://localhost:3001/student/educationinfo/newform", data2);
-        }).then(response => {
-          console.log(response);
+        if (!data.loading) {
+          localStorage.setItem("id", data.data.addStudent._id);
+          localStorage.setItem("type", data.data.addStudent.__typename);
 
           this.setState({
             errormessages: {
               accounterrormsg: "",
-            }
+            },
           });
-        }).catch(error => {
-          console.log(error);
-          this.setState({
-            errormessages: {
-              accounterrormsg: error.response.data
-            }
-          });
+        }
+      } catch (err) {
+        console.log(err.message);
+        this.setState({
+          errormessages: {
+            accounterrormsg: err.message.split(":")[1],
+          },
         });
+      }
     } else {
       this.setState({
         errormessages: {
@@ -160,16 +149,16 @@ class Signup extends React.Component {
           emailerrormsg,
           passerrormsg,
           collegeerrormsg,
-        }
+        },
       });
     }
   };
 
   render() {
-    // if sign up then redirecto the student profile
+    // if sign up then redirect to the student profile
     let redirectVar = null;
-    const path = `/student/${cookie.load('id')}`;
-    if (cookie.load('user') === "student") {
+    const path = `/company/${localStorage.getItem("id")}`;
+    if (localStorage.getItem("type") === "Student") {
       redirectVar = <Redirect to={path} />;
     }
 
@@ -186,7 +175,10 @@ class Signup extends React.Component {
               onChange={this.fnameChangeHandler}
               placeholder="Enter First Name"
             />
-            <p className="errormessage"> {this.state.errormessages.fnameerrormsg}</p>
+            <p className="errormessage">
+              {" "}
+              {this.state.errormessages.fnameerrormsg}
+            </p>
           </Form.Group>
 
           <Form.Group controlId="lName">
@@ -196,7 +188,10 @@ class Signup extends React.Component {
               onChange={this.lnameChangeHandler}
               placeholder="Enter Last Name"
             />
-            <p className="errormessage"> {this.state.errormessages.lnameerrormsg}</p>
+            <p className="errormessage">
+              {" "}
+              {this.state.errormessages.lnameerrormsg}
+            </p>
           </Form.Group>
 
           <Form.Row>
@@ -207,7 +202,10 @@ class Signup extends React.Component {
                 type="email"
                 placeholder="Enter email"
               />
-              <p className="errormessage"> {this.state.errormessages.emailerrormsg}</p>
+              <p className="errormessage">
+                {" "}
+                {this.state.errormessages.emailerrormsg}
+              </p>
             </Form.Group>
 
             <Form.Group as={Col} controlId="Password">
@@ -217,7 +215,10 @@ class Signup extends React.Component {
                 type="password"
                 placeholder="Password"
               />
-              <p className="errormessage"> {this.state.errormessages.passerrormsg}</p>
+              <p className="errormessage">
+                {" "}
+                {this.state.errormessages.passerrormsg}
+              </p>
             </Form.Group>
           </Form.Row>
 
@@ -228,17 +229,23 @@ class Signup extends React.Component {
               onChange={this.collegeChangeHandler}
               placeholder="Enter College Name"
             />
-            <p className="errormessage"> {this.state.errormessages.collegeerrormsg}</p>
+            <p className="errormessage">
+              {" "}
+              {this.state.errormessages.collegeerrormsg}
+            </p>
           </Form.Group>
 
-          <p className="errormessage"> {this.state.errormessages.accounterrormsg}</p>
+          <p className="errormessage">
+            {" "}
+            {this.state.errormessages.accounterrormsg}
+          </p>
 
           <Button onClick={this.signup} className="submitbutton" type="submit">
             Sign Up
           </Button>
 
           <Link className="signinlink" to="/student/signin">
-              Already have an account? Sign In
+            Already have an account? Sign In
           </Link>
         </Form>
       </div>
@@ -246,4 +253,6 @@ class Signup extends React.Component {
   }
 }
 
-export default Signup;
+export default compose(
+  graphql(addStudentMutation, { name: "addStudentMutation" })
+)(Signup);
