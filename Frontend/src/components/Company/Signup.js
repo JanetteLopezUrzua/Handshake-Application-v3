@@ -214,7 +214,7 @@ class Signup extends React.Component {
             Sign Up
           </Button>
 
-          <Link className="signinlink" to="/company/signin">
+          <Link className="loginlink" to="/company/login">
             Already have an account? Sign In
           </Link>
         </Form>

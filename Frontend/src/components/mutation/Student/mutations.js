@@ -20,4 +20,12 @@ const addStudentMutation = gql`
   }
 `;
 
-export { addStudentMutation };
+const loginStudentMutation = gql`
+  mutation($email: String, $password: String) {
+    loginStudent(email: $email, password: $password) {
+      _id
+    }
+  }
+`;
+
+export { addStudentMutation, loginStudentMutation };

@@ -4,10 +4,10 @@ import "./App.css";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Firstscreen from "./components/Firstscreen";
 import StudentSignup from "./components/Student/Signup";
-import StudentSignin from "./components/Student/Signin";
+import StudentLogin from "./components/Student/Login";
 import StudentProfile from "./components/Student/StudentProfile/ProfilePage";
 import CompanySignup from "./components/Company/Signup";
-import CompanySignin from "./components/Company/Signin";
+import CompanyLogin from "./components/Company/Login";
 import CompanyProfile from "./components/Company/CompanyProfile/ProfilePage";
 import StudentStudentsList from "./components/Student/StudentTab/StudentsPage";
 import CompanyStudentsList from "./components/Company/StudentTab/StudentsPage";
@@ -95,9 +95,9 @@ class App extends Component {
         <Switch>
           <Route exact path="/" component={Firstscreen} />
           <Route path="/student/signup" component={StudentSignup} />
-          <Route path="/student/signin" component={StudentSignin} />
+          <Route path="/student/login" component={StudentLogin} />
           <Route path="/company/signup" component={CompanySignup} />
-          <Route path="/company/signin" component={CompanySignin} />
+          <Route path="/company/login" component={CompanyLogin} />
           <Route component={DefaultContainer} />
         </Switch>
       </BrowserRouter>

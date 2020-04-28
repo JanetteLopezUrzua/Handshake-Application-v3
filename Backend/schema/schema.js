@@ -176,6 +176,34 @@ const Mutation = new GraphQLObjectType({
         return await company.save();
       },
     },
+    loginCompany: {
+      type: CompanyType,
+      args: {
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let { email, password } = args;
+
+        //Check if company email exists
+        let company = await Company.findOne({ email });
+
+        if (!company) {
+          throw new Error("Invalid Credentials");
+        }
+
+        const isPasswordAMatch = await bcrypt.compare(
+          password,
+          company.password
+        );
+
+        if (!isPasswordAMatch) {
+          throw new Error("Invalid Credentials");
+        }
+
+        return company;
+      },
+    },
     addStudent: {
       type: StudentType,
       args: {
@@ -210,6 +238,34 @@ const Mutation = new GraphQLObjectType({
         student.password = await bcrypt.hash(password, salt);
 
         return await student.save();
+      },
+    },
+    loginStudent: {
+      type: StudentType,
+      args: {
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let { email, password } = args;
+
+        //Check if company email exists
+        let student = await Student.findOne({ email });
+
+        if (!student) {
+          throw new Error("Invalid Credentials");
+        }
+
+        const isPasswordAMatch = await bcrypt.compare(
+          password,
+          student.password
+        );
+
+        if (!isPasswordAMatch) {
+          throw new Error("Invalid Credentials");
+        }
+
+        return student;
       },
     },
   },

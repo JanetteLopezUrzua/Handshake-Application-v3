@@ -18,4 +18,12 @@ const addCompanyMutation = gql`
   }
 `;
 
-export { addCompanyMutation };
+const loginCompanyMutation = gql`
+  mutation($email: String, $password: String) {
+    loginCompany(email: $email, password: $password) {
+      _id
+    }
+  }
+`;
+
+export { addCompanyMutation, loginCompanyMutation };

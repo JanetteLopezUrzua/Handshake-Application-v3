@@ -157,7 +157,7 @@ class Signup extends React.Component {
   render() {
     // if sign up then redirect to the student profile
     let redirectVar = null;
-    const path = `/company/${localStorage.getItem("id")}`;
+    const path = `/student/${localStorage.getItem("id")}`;
     if (localStorage.getItem("type") === "Student") {
       redirectVar = <Redirect to={path} />;
     }
@@ -244,7 +244,7 @@ class Signup extends React.Component {
             Sign Up
           </Button>
 
-          <Link className="signinlink" to="/student/signin">
+          <Link className="loginlink" to="/student/login">
             Already have an account? Sign In
           </Link>
         </Form>
