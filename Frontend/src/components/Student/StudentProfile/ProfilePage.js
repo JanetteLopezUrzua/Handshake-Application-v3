@@ -8,7 +8,7 @@ import BasicDetails from "./BasicDetails/BasicDetails";
 import CareerObjective from "./CareerObjective/CareerObjective";
 // import Skillset from './Skillset/Skillset';
 import PictureDetails from "./PictureDetails/PictureDetails";
-// import ContactInformation from './ContactInfo/ContactInformation';
+import ContactInformation from "./ContactInfo/ContactInformation";
 // import EducationDetails from './EducationDetails/EducationDetails';
 // import WorkDetails from './WorkDetails/WorkDetails';
 
@@ -39,8 +39,8 @@ class ProfilePage extends React.Component {
           <Col sm={8}>
             <CareerObjective id={this.props.match.params.id} />
             {/* <EducationDetails id={this.props.match.params.id} />
-            <WorkDetails id={this.props.match.params.id} />
-            <ContactInformation id={this.props.match.params.id} /> */}
+            <WorkDetails id={this.props.match.params.id} /> */}
+            <ContactInformation id={this.props.match.params.id} />
           </Col>
         </Row>
       </Container>

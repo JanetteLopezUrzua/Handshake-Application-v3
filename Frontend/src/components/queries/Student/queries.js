@@ -42,8 +42,18 @@ const getStudentCareerObjectiveQuery = gql`
   }
 `;
 
+const getStudentContactInfoQuery = gql`
+  query($id: ID) {
+    student(id: $id) {
+      email
+      phonenumber
+    }
+  }
+`;
+
 export {
   getStudentPictureInfoQuery,
   getStudentBasicInfoQuery,
   getStudentCareerObjectiveQuery,
+  getStudentContactInfoQuery,
 };

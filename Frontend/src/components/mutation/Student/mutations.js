@@ -76,6 +76,18 @@ const updateStudentCareerObjectiveMutation = gql`
   }
 `;
 
+const updateStudentContactInfoMutation = gql`
+  mutation($id: ID, $email: String, $phonenumber: String) {
+    updateStudentContactInfo(
+      id: $id
+      email: $email
+      phonenumber: $phonenumber
+    ) {
+      _id
+    }
+  }
+`;
+
 export {
   addStudentMutation,
   loginStudentMutation,
@@ -83,4 +95,5 @@ export {
   deleteStudentPictureMutation,
   updateStudentBasicInfoMutation,
   updateStudentCareerObjectiveMutation,
+  updateStudentContactInfoMutation,
 };

@@ -1,9 +1,9 @@
 import React from "react";
-import axios from "axios";
-// import cookie from 'react-cookies';
 import DisplayContactInfo from "./DisplayContactInfo";
 import EditContactInfo from "./EditContactInfo";
-
+import { graphql, compose } from "react-apollo";
+import { getStudentContactInfoQuery } from "../../../queries/Student/queries";
+import { updateStudentContactInfoMutation } from "../../../mutation/Student/mutations";
 
 class ContactInformation extends React.Component {
   constructor() {
@@ -18,60 +18,29 @@ class ContactInformation extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
-
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios.get(`http://localhost:3001/student/contactinfo/${this.state.id}`)
-      .then(response => {
-        const info = response.data;
-
-        const wspatt = new RegExp("^ *$");
-
-        if (info.email === null || wspatt.test(info.email)) {
-          info.email = "";
-        }
-        if (info.phonenum === null || wspatt.test(info.phonenum)) {
-          info.phonenum = "";
-        }
-
-        this.setState({
-          email: info.email,
-          phonenum: info.phonenum,
-        });
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   handleClick = (e) => {
     e.preventDefault();
-    console.log("button was pressed!!!!");
     this.setState({ editWasTriggered: true });
-
-    // this.getInfo();
   };
 
-  emailChangeHandler = e => {
+  emailChangeHandler = (e) => {
     this.setState({
-      email: e.target.value
+      email: e.target.value,
     });
   };
 
-  phoneChangeHandler = e => {
+  phoneChangeHandler = (e) => {
     this.setState({
-      phonenum: e.target.value
+      phonenum: e.target.value,
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
 
-    const numbers = this.state.phonenum.replace(/\D/g, '');
+    const numbers = this.state.phonenum.replace(/\D/g, "");
 
     // Check that email input is valid
     const emailpatt = new RegExp("\\S+@\\S+\\.\\S+");
@@ -79,51 +48,62 @@ class ContactInformation extends React.Component {
 
     if (wspatt.test(this.state.email)) {
       this.setState({
-        errormessage: "Required. Enter Email."
+        errormessage: "Required. Enter Email.",
       });
     } else if (!emailpatt.test(this.state.email)) {
       this.setState({
-        errormessage: "Email is not valid."
+        errormessage: "Email is not valid.",
       });
     } else if (numbers.length > 10 || numbers.length < 10) {
       this.setState({
-        errormessage: "Please enter a 10 digit phone number."
+        errormessage: "Please enter a 10 digit phone number.",
       });
     } else {
-      const data = {
-        id: this.state.id,
-        email: this.state.email,
-        phonenum: numbers,
-      };
+      let { id, email, phonenum } = this.state;
 
-      axios.post("http://localhost:3001/student/contactinfo", data)
-        .then(response => {
-          console.log(response);
-          this.setState({
-            email: data.email,
-            phonenum: data.phonenum,
-          });
-        })
-        .catch(error => {
-          console.log(error);
+      try {
+        let data = await this.props.updateStudentContactInfoMutation({
+          variables: {
+            id: id,
+            email: email.trim(),
+            phonenumber: phonenum.trim(),
+          },
+          refetchQueries: [
+            {
+              query: getStudentContactInfoQuery,
+              variables: { id: this.props.id },
+            },
+          ],
         });
 
-      this.setState({ editWasTriggered: false });
+        console.log(data);
+
+        this.setState({ errormessage: "", editWasTriggered: false });
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 
   handleCancel = () => {
     this.setState({
       errormessage: "",
-      editWasTriggered: false
+      editWasTriggered: false,
     });
-    this.getInfo();
   };
 
   render() {
-    const {
-      email, phonenum, editWasTriggered, errormessage
-    } = this.state;
+    let data = this.props.data;
+    console.log(data);
+
+    let email = null;
+    let phonenumber = null;
+    if (!data.loading) {
+      email = this.props.data.student.email;
+      phonenumber = this.props.data.student.phonenumber;
+    }
+
+    const { editWasTriggered, errormessage } = this.state;
 
     let display = "";
     display = (
@@ -131,7 +111,7 @@ class ContactInformation extends React.Component {
         id={this.state.id}
         clicked={this.handleClick}
         email={email}
-        phonenum={phonenum}
+        phonenum={phonenumber}
       />
     );
 
@@ -142,8 +122,8 @@ class ContactInformation extends React.Component {
           phonechange={this.phoneChangeHandler}
           save={this.handleSave}
           cancel={this.handleCancel}
-          email={email}
-          phonenum={phonenum}
+          email={this.state.email}
+          phonenum={this.state.phonenum}
           errormessage={errormessage}
         />
       );
@@ -153,4 +133,11 @@ class ContactInformation extends React.Component {
   }
 }
 
-export default ContactInformation;
+export default compose(
+  graphql(getStudentContactInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateStudentContactInfoMutation, {
+    name: "updateStudentContactInfoMutation",
+  })
+)(ContactInformation);
