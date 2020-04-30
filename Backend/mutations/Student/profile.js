@@ -1,16 +1,20 @@
 const Student = require("../../models/Student/Students");
 
-const companyUpdateBasicInfo = async (args) => {
-  let { id, location, description } = args;
+const studentUpdateBasicInfo = async (args) => {
+  let { id, fname, lname, dob, city, state, country } = args;
 
   let data = {
-    location,
-    description,
+    fname,
+    lname,
+    dob,
+    city,
+    state,
+    country,
   };
   console.log(id);
-  let company = await Company.findByIdAndUpdate(id, data, { new: true });
+  let student = await Student.findByIdAndUpdate(id, data, { new: true });
 
-  return company;
+  return student;
 };
 
 const companyUpdateContactInfo = async (args) => {
@@ -38,18 +42,6 @@ const studentUpdatePictureInfo = async (args) => {
   return student;
 };
 
-const companyUpdateName = async (args) => {
-  let { id, name } = args;
-
-  let data = {
-    name,
-  };
-  console.log(id);
-  let company = await Company.findByIdAndUpdate(id, data, { new: true });
-
-  return company;
-};
-
 const studentDeletePicture = async (args) => {
   let { id } = args;
 
@@ -62,8 +54,7 @@ const studentDeletePicture = async (args) => {
   return student;
 };
 
-exports.companyUpdateBasicInfo = companyUpdateBasicInfo;
+exports.studentUpdateBasicInfo = studentUpdateBasicInfo;
 exports.companyUpdateContactInfo = companyUpdateContactInfo;
 exports.studentUpdatePictureInfo = studentUpdatePictureInfo;
-exports.companyUpdateName = companyUpdateName;
 exports.studentDeletePicture = studentDeletePicture;

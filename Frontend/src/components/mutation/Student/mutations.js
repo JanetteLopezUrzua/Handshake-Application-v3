@@ -44,9 +44,34 @@ const deleteStudentPictureMutation = gql`
   }
 `;
 
+const updateStudentBasicInfoMutation = gql`
+  mutation(
+    $id: ID
+    $fname: String
+    $lname: String
+    $dob: String
+    $city: String
+    $state: String
+    $country: String
+  ) {
+    updateStudentBasicInfo(
+      id: $id
+      fname: $fname
+      lname: $lname
+      dob: $dob
+      city: $city
+      state: $state
+      country: $country
+    ) {
+      _id
+    }
+  }
+`;
+
 export {
   addStudentMutation,
   loginStudentMutation,
   updateStudentPictureInfoMutation,
   deleteStudentPictureMutation,
+  updateStudentBasicInfoMutation,
 };

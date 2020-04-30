@@ -14,6 +14,7 @@ const { studentSignUp, studentLogIn } = require("../mutations/Student/auth");
 const {
   studentUpdatePictureInfo,
   studentDeletePicture,
+  studentUpdateBasicInfo,
 } = require("../mutations/Student/profile");
 
 const {
@@ -270,6 +271,21 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return studentDeletePicture(args);
+      },
+    },
+    updateStudentBasicInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        fname: { type: GraphQLString },
+        lname: { type: GraphQLString },
+        dob: { type: GraphQLString },
+        city: { type: GraphQLString },
+        state: { type: GraphQLString },
+        country: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentUpdateBasicInfo(args);
       },
     },
   },

@@ -21,4 +21,17 @@ const getStudentPictureInfoQuery = gql`
   }
 `;
 
-export { getStudentPictureInfoQuery };
+const getStudentBasicInfoQuery = gql`
+  query($id: ID) {
+    student(id: $id) {
+      fname
+      lname
+      dob
+      city
+      state
+      country
+    }
+  }
+`;
+
+export { getStudentPictureInfoQuery, getStudentBasicInfoQuery };

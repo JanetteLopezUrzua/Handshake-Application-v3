@@ -1,8 +1,9 @@
 import React from "react";
-import axios from "axios";
 import DisplayInfo from "./DisplayInfo";
 import EditInfo from "./EditInfo";
-
+import { graphql, compose } from "react-apollo";
+import { getStudentBasicInfoQuery } from "../../../queries/Student/queries";
+import { updateStudentBasicInfoMutation } from "../../../mutation/Student/mutations";
 
 class BasicDetails extends React.Component {
   constructor() {
@@ -16,130 +17,143 @@ class BasicDetails extends React.Component {
       city: "",
       state: "",
       country: "",
-      editWasTriggered: false
+      editWasTriggered: false,
+      fnameerrormessage: "",
+      lnameerrormessage: "",
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
-
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios.get(`http://localhost:3001/student/personalinfo/${this.state.id}`)
-      .then(response => {
-        const info = response.data;
-
-        const wspatt = new RegExp("^ *$");
-
-        if (info.fname === null || wspatt.test(info.fname)) {
-          info.fname = "";
-        }
-        if (info.lname === null || wspatt.test(info.lname)) {
-          info.lname = "";
-        }
-        if (info.dob === null || wspatt.test(info.dob)) {
-          info.dob = "";
-        }
-        if (info.city === null || wspatt.test(info.city)) {
-          info.city = "";
-        }
-        if (info.state === null || wspatt.test(info.state)) {
-          info.state = "";
-        }
-        if (info.country === null || wspatt.test(info.country)) {
-          info.country = "";
-        }
-
-        this.setState({
-          fname: info.fname,
-          lname: info.lname,
-          dob: info.dob,
-          city: info.city,
-          state: info.state,
-          country: info.country,
-        });
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   handleClick = (e) => {
     e.preventDefault();
-    console.log("button was pressed!!!!");
     this.setState({ editWasTriggered: true });
-
-    // this.getInfo();
   };
 
-  fnameChangeHandler = e => {
+  fnameChangeHandler = (e) => {
     this.setState({
-      fname: e.target.value
+      fname: e.target.value,
     });
   };
 
-  lnameChangeHandler = e => {
+  lnameChangeHandler = (e) => {
     this.setState({
-      lname: e.target.value
+      lname: e.target.value,
     });
   };
 
-  dobChangeHandler = e => {
+  dobChangeHandler = (e) => {
     this.setState({
-      dob: e.target.value
+      dob: e.target.value,
     });
   };
 
-  cityChangeHandler = e => {
+  cityChangeHandler = (e) => {
     this.setState({
-      city: e.target.value
+      city: e.target.value,
     });
   };
 
-  stateChangeHandler = e => {
+  stateChangeHandler = (e) => {
     this.setState({
-      state: e.target.value
+      state: e.target.value,
     });
   };
 
-  countryChangeHandler = e => {
+  countryChangeHandler = (e) => {
     this.setState({
-      country: e.target.value
+      country: e.target.value,
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
-    const data = {
-      id: this.state.id,
-      fname: this.state.fname,
-      lname: this.state.lname,
-      dob: this.state.dob,
-      city: this.state.city,
-      state: this.state.state,
-      country: this.state.country,
-    };
 
-    axios.post("http://localhost:3001/student/personalinfo", data)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
+    let fnameerrormessage = "";
+    let lnameerrormessage = "";
+
+    const wspatt = new RegExp("^ *$");
+
+    if (wspatt.test(this.state.fname.trim())) {
+      fnameerrormessage = "Required. Enter First Name.";
+    }
+
+    if (wspatt.test(this.state.lname.trim())) {
+      lnameerrormessage = "Required. Enter Last Name.";
+    }
+
+    if (fnameerrormessage === "" && lnameerrormessage === "") {
+      let { id, fname, lname, dob, city, state, country } = this.state;
+
+      try {
+        let data = await this.props.updateStudentBasicInfoMutation({
+          variables: {
+            id: id,
+            fname: fname,
+            lname: lname,
+            dob: dob,
+            city: city,
+            state: state,
+            country: country,
+          },
+          refetchQueries: [
+            {
+              query: getStudentBasicInfoQuery,
+              variables: { id: this.props.id },
+            },
+          ],
+        });
+
+        console.log(data);
+
+        this.setState({
+          fnameerrormessage: "",
+          lnameerrormessage: "",
+
+          editWasTriggered: false,
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
+    } else {
+      this.setState({
+        fnameerrormessage,
+        lnameerrormessage,
       });
-
-    this.setState({ editWasTriggered: false });
+    }
   };
 
   handleCancel = () => {
-    this.setState({ editWasTriggered: false });
+    this.setState({
+      fnameerrormessage: "",
+      lnameerrormessage: "",
+      editWasTriggered: false,
+    });
   };
 
   render() {
+    let data = this.props.data;
+    console.log(data);
+
+    let fname = null;
+    let lname = null;
+    let dob = null;
+    let city = null;
+    let state = null;
+    let country = null;
+    if (!data.loading) {
+      fname = this.props.data.student.fname;
+      lname = this.props.data.student.lname;
+      dob = this.props.data.student.dob;
+      city = this.props.data.student.city;
+      state = this.props.data.student.state;
+      country = this.props.data.student.country;
+    }
+
     const {
-      fname, lname, dob, city, state, country, editWasTriggered
+      editWasTriggered,
+      fnameerrormessage,
+      lnameerrormessage,
     } = this.state;
 
     let display = "";
@@ -168,6 +182,8 @@ class BasicDetails extends React.Component {
           save={this.handleSave}
           cancel={this.handleCancel}
           data={this.state}
+          fnameerrormessage={fnameerrormessage}
+          lnameerrormessage={lnameerrormessage}
         />
       );
     }
@@ -176,4 +192,11 @@ class BasicDetails extends React.Component {
   }
 }
 
-export default BasicDetails;
+export default compose(
+  graphql(getStudentBasicInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateStudentBasicInfoMutation, {
+    name: "updateStudentBasicInfoMutation",
+  })
+)(BasicDetails);

@@ -4,7 +4,7 @@ import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { Redirect } from "react-router";
-// import BasicDetails from "./BasicDetails/BasicDetails";
+import BasicDetails from "./BasicDetails/BasicDetails";
 // import CareerObjective from './CareerObjective/CareerObjective';
 // import Skillset from './Skillset/Skillset';
 import PictureDetails from "./PictureDetails/PictureDetails";
@@ -33,8 +33,8 @@ class ProfilePage extends React.Component {
               id={this.props.match.params.id}
               photochange={this.props.handlephotochange}
             />
-            {/* <Skillset id={this.props.match.params.id} />
-            <BasicDetails id={this.props.match.params.id} /> */}
+            {/* <Skillset id={this.props.match.params.id} /> */}
+            <BasicDetails id={this.props.match.params.id} />
           </Col>
           <Col sm={8}>
             {/* <CareerObjective id={this.props.match.params.id} />
