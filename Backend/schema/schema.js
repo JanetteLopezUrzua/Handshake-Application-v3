@@ -15,6 +15,7 @@ const {
   studentUpdatePictureInfo,
   studentDeletePicture,
   studentUpdateBasicInfo,
+  studentUpdateCareerObjective,
 } = require("../mutations/Student/profile");
 
 const {
@@ -286,6 +287,16 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return studentUpdateBasicInfo(args);
+      },
+    },
+    updateStudentCareerObjective: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        objective: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentUpdateCareerObjective(args);
       },
     },
   },

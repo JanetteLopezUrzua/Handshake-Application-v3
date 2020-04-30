@@ -1,9 +1,9 @@
 import React from "react";
-import axios from "axios";
-// import cookie from 'react-cookies';
 import DisplayObjective from "./DisplayObjective";
 import EditObjective from "./EditObjective";
-
+import { graphql, compose } from "react-apollo";
+import { getStudentCareerObjectiveQuery } from "../../../queries/Student/queries";
+import { updateStudentCareerObjectiveMutation } from "../../../mutation/Student/mutations";
 
 class CareerObjective extends React.Component {
   constructor(props) {
@@ -16,87 +16,63 @@ class CareerObjective extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
-
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios.get(`http://localhost:3001/student/careerobjective/${this.state.id}`)
-      .then(response => {
-        const info = response.data;
-
-        // objective has whitespace only
-        const wspatt = new RegExp("^ *$");
-
-        if (info.objective === undefined || wspatt.test(info.objective)) {
-          this.setState({
-            objective: "",
-          });
-        } else {
-          this.setState({
-            objective: info.objective,
-          });
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   handleClick = (e) => {
     e.preventDefault();
-    console.log("button was pressed!!!!");
     this.setState({ editWasTriggered: true });
   };
 
-  objectiveChangeHandler = e => {
+  objectiveChangeHandler = (e) => {
     this.setState({
-      objective: e.target.value
+      objective: e.target.value,
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
-    // objective has whitespace only
-    const wspatt = new RegExp("^ *$");
 
-    if (this.state.objective === undefined || wspatt.test(this.state.objective)) {
-      this.setState({
-        objective: "",
+    let { id, objective } = this.state;
+
+    try {
+      let data = await this.props.updateStudentCareerObjectiveMutation({
+        variables: {
+          id: id,
+          objective: objective.trim(),
+        },
+        refetchQueries: [
+          {
+            query: getStudentCareerObjectiveQuery,
+            variables: { id: this.props.id },
+          },
+        ],
       });
+
+      console.log(data);
+
+      this.setState({ editWasTriggered: false });
+    } catch (err) {
+      console.log(err.message);
     }
-
-    const data = {
-      id: this.state.id,
-      objective: this.state.objective,
-    };
-
-    axios.post("http://localhost:3001/student/careerobjective", data)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-
-    this.setState({ editWasTriggered: false });
-
-    // this.getInfo();
   };
 
   handleCancel = (e) => {
     e.preventDefault();
     this.setState({
-      editWasTriggered: false
+      editWasTriggered: false,
     });
   };
 
   render() {
-    const {
-      objective, editWasTriggered
-    } = this.state;
+    let data = this.props.data;
+    console.log(data);
+
+    let objective = null;
+    if (!data.loading) {
+      objective = this.props.data.student.objective;
+    }
+
+    const { editWasTriggered } = this.state;
 
     let display = "";
     display = (
@@ -122,4 +98,11 @@ class CareerObjective extends React.Component {
   }
 }
 
-export default CareerObjective;
+export default compose(
+  graphql(getStudentCareerObjectiveQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateStudentCareerObjectiveMutation, {
+    name: "updateStudentCareerObjectiveMutation",
+  })
+)(CareerObjective);

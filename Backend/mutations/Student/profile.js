@@ -54,7 +54,20 @@ const studentDeletePicture = async (args) => {
   return student;
 };
 
+const studentUpdateCareerObjective = async (args) => {
+  let { id, objective } = args;
+
+  let data = {
+    objective,
+  };
+  console.log(id);
+  let student = await Student.findByIdAndUpdate(id, data, { new: true });
+
+  return student;
+};
+
 exports.studentUpdateBasicInfo = studentUpdateBasicInfo;
 exports.companyUpdateContactInfo = companyUpdateContactInfo;
 exports.studentUpdatePictureInfo = studentUpdatePictureInfo;
 exports.studentDeletePicture = studentDeletePicture;
+exports.studentUpdateCareerObjective = studentUpdateCareerObjective;

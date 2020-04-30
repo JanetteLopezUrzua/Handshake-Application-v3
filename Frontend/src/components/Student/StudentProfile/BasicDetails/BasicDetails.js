@@ -89,12 +89,12 @@ class BasicDetails extends React.Component {
         let data = await this.props.updateStudentBasicInfoMutation({
           variables: {
             id: id,
-            fname: fname,
-            lname: lname,
-            dob: dob,
-            city: city,
-            state: state,
-            country: country,
+            fname: fname.trim(),
+            lname: lname.trim(),
+            dob: dob.trim(),
+            city: city.trim(),
+            state: state.trim(),
+            country: country.trim(),
           },
           refetchQueries: [
             {

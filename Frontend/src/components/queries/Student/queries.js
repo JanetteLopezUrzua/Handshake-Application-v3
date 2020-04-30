@@ -34,4 +34,16 @@ const getStudentBasicInfoQuery = gql`
   }
 `;
 
-export { getStudentPictureInfoQuery, getStudentBasicInfoQuery };
+const getStudentCareerObjectiveQuery = gql`
+  query($id: ID) {
+    student(id: $id) {
+      objective
+    }
+  }
+`;
+
+export {
+  getStudentPictureInfoQuery,
+  getStudentBasicInfoQuery,
+  getStudentCareerObjectiveQuery,
+};
