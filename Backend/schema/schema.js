@@ -11,6 +11,10 @@ const {
   companyDeletePicture,
 } = require("../mutations/Company/profile");
 const { studentSignUp, studentLogIn } = require("../mutations/Student/auth");
+const {
+  studentUpdatePictureInfo,
+  studentDeletePicture,
+} = require("../mutations/Student/profile");
 
 const {
   GraphQLObjectType,
@@ -72,9 +76,9 @@ const StudentType = new GraphQLObjectType({
       },
     },
     schools: {
-      type: SchoolType,
+      type: new GraphQLList(SchoolType),
       resolve(parent, args) {
-        return authors.find((author) => author.id === parent.authorId);
+        return parent.schools;
       },
     },
     jobs: {
@@ -142,7 +146,7 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       async resolve(parent, args) {
         let { id } = args;
-        let student = await Company.findById(id).select("-password");
+        let student = await Student.findById(id).select("-password");
         console.log(student);
         return student;
       },
@@ -247,6 +251,25 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return studentLogIn(args);
+      },
+    },
+    updateStudentPictureInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        photo: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentUpdatePictureInfo(args);
+      },
+    },
+    deleteStudentPicture: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return studentDeletePicture(args);
       },
     },
   },

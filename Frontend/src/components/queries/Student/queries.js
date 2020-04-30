@@ -1,20 +1,24 @@
 import { gql } from "apollo-boost";
 
-// const getCompanyAuthQuery = gql`
-//   {
-//     companyAuth(email: $email) {
-//       _id
-//     }
-//   }
-// `;
+const getStudentPictureInfoQuery = gql`
+  query($id: ID) {
+    student(id: $id) {
+      fname
+      lname
+      photo
+      schools {
+        _id
+        name
+        primaryschool
+        location
+        degree
+        major
+        passingmonth
+        passingyear
+        gpa
+      }
+    }
+  }
+`;
 
-// const getBooksQuery = gql`
-//     {
-//         books {
-//             name
-//             id
-//         }
-//     }
-// `;
-
-export { getCompanyAuthQuery };
+export { getStudentPictureInfoQuery };

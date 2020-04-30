@@ -27,15 +27,6 @@ const getCompanyPictureInfoQuery = gql`
   }
 `;
 
-// const getBooksQuery = gql`
-//     {
-//         books {
-//             name
-//             id
-//         }
-//     }
-// `;
-
 export {
   getCompanyBasicInfoQuery,
   getCompanyContactInfoQuery,

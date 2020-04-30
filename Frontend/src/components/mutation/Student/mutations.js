@@ -28,4 +28,25 @@ const loginStudentMutation = gql`
   }
 `;
 
-export { addStudentMutation, loginStudentMutation };
+const updateStudentPictureInfoMutation = gql`
+  mutation($id: ID, $photo: String) {
+    updateStudentPictureInfo(id: $id, photo: $photo) {
+      _id
+    }
+  }
+`;
+
+const deleteStudentPictureMutation = gql`
+  mutation($id: ID) {
+    deleteStudentPicture(id: $id) {
+      _id
+    }
+  }
+`;
+
+export {
+  addStudentMutation,
+  loginStudentMutation,
+  updateStudentPictureInfoMutation,
+  deleteStudentPictureMutation,
+};

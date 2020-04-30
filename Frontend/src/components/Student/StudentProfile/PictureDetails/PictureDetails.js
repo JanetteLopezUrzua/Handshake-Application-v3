@@ -1,6 +1,5 @@
 import React from "react";
 import axios from "axios";
-import cookie from "react-cookies";
 import Card from "react-bootstrap/Card";
 // import Container from "react-bootstrap/Container";
 import Image from "react-bootstrap/Image";
@@ -8,6 +7,12 @@ import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import { FaCamera } from "react-icons/fa";
 import ModalPicture from "./Modal";
+import { graphql, compose } from "react-apollo";
+import { getStudentPictureInfoQuery } from "../../../queries/Student/queries";
+import {
+  updateStudentPictureInfoMutation,
+  deleteStudentPictureMutation,
+} from "../../../mutation/Student/mutations";
 
 class PictureDetails extends React.Component {
   constructor() {
@@ -19,52 +24,16 @@ class PictureDetails extends React.Component {
       lname: "",
       college: "",
       show: false,
-      has_image: false,
+      data: "",
       photo: "",
       validimage: "",
       errormessage: "",
     };
   }
 
-  static getDerivedStateFromProps = props => ({ id: props.id });
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios
-      .get(`http://localhost:3001/student/pictureinfo/${this.state.id}`)
-      .then(response => {
-        const info = response.data;
-
-        console.log(response.data);
-        this.setState({
-          fname: info.fname,
-          lname: info.lname,
-          college: info.college,
-          photo: info.photo
-        });
-
-        if (this.state.photo === "" || this.state.photo === null) {
-          this.setState({
-            has_image: false
-          });
-        } else {
-          this.setState({
-            has_image: true
-          });
-        }
-
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(error.response.data);
-      });
-  };
-
-  photoHandler = e => {
+  photoHandler = (e) => {
     e.preventDefault();
     const file = e.target.files[0];
 
@@ -72,53 +41,65 @@ class PictureDetails extends React.Component {
     this.getImage(file);
   };
 
-  getImage = file => {
+  getImage = (file) => {
     const data = new FormData();
 
     if (file && file.type.match("image.*")) {
-      data.append('file', file);
-      data.append('name', 'file');
+      data.append("file", file);
+      data.append("name", "file");
       this.setState({
         data,
         validimage: true,
-        errormessage: ""
+        errormessage: "",
       });
     } else {
       this.setState({
         validimage: false,
-        errormessage: "File not accepted. Choose an Image."
+        errormessage: "File not accepted. Choose an Image.",
       });
     }
   };
 
-  onUpload = e => {
+  onUpload = async (e) => {
     console.log(this.state.validimage);
     e.preventDefault();
     if (this.state.validimage === true) {
-      axios
-        .post('http://localhost:3001/upload', this.state.data)
-        .then(response => {
-          console.log("res", response.data);
+      console.log(this.state.data);
 
-          const data = {
-            id: this.state.id,
-            photo: response.data
-          };
+      try {
+        let response = await axios.post(
+          "http://localhost:3001/upload",
+          this.state.data
+        );
 
-          return axios.post("http://localhost:3001/student/pictureinfo", data);
-        })
-        .then(response => {
-          console.log(response);
+        console.log(response.data);
 
-          this.setState({
-            has_image: true,
-            show: false,
+        let photo = response.data;
+
+        try {
+          let data = await this.props.updateStudentPictureInfoMutation({
+            variables: {
+              id: this.props.id,
+              photo: photo,
+            },
+            refetchQueries: [
+              {
+                query: getStudentPictureInfoQuery,
+                variables: { id: this.props.id },
+              },
+            ],
           });
+
+          console.log(data);
+
+          this.setState({ show: false });
           this.props.photochange();
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        } catch (err) {
+          console.log(err.message);
+        }
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 
@@ -126,81 +107,117 @@ class PictureDetails extends React.Component {
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
       show: false,
-      errormessage: ""
+      errormessage: "",
     });
   };
 
   handleShow = () =>
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
-      show: true
+      show: true,
     });
 
-  onDelete = e => {
+  onDelete = async (e) => {
     e.preventDefault();
 
-    axios
-      .delete("http://localhost:3001/student/pictureinfo/delete", {
-        data: { id: this.state.id }
-      })
-      .then(response => {
-        console.log(response);
-        this.setState({
-          show: false,
-          has_image: false,
-        });
-        this.props.photochange();
-      })
-      .catch(error => {
-        console.log(error);
+    let { id } = this.state;
+
+    try {
+      let data = await this.props.deleteStudentPictureMutation({
+        variables: {
+          id: id,
+        },
+        refetchQueries: [
+          {
+            query: getStudentPictureInfoQuery,
+            variables: { id: this.props.id },
+          },
+        ],
       });
 
-    // this.getInfo();
+      console.log(data);
+
+      this.setState({ show: false });
+      this.props.photochange();
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   render() {
+    let data = this.props.data;
+    console.log(data);
+
+    let fname = null;
+    let lname = null;
+    let college = null;
+    let photo = null;
+    if (!data.loading) {
+      fname = this.props.data.student.fname;
+      lname = this.props.data.student.lname;
+      college = this.props.data.student.schools.filter((school) => {
+        if (school.primaryschool === "true") return school;
+      });
+      if (college === undefined) college = "";
+      else college = college[0].name;
+      photo = this.props.data.student.photo;
+    }
+
+    let has_image = null;
+    if (photo === null) has_image = false;
+    else has_image = true;
+
     let studentPhoto = "";
 
-    if (this.state.has_image === false) {
-      if (cookie.load('id') === this.state.id && cookie.load('user') === "student") {
+    if (has_image === false) {
+      if (
+        localStorage.getItem("id") === this.state.id &&
+        localStorage.getItem("type") === "Student"
+      ) {
         studentPhoto = (
           <Button className="ProfilePicButton" onClick={this.handleShow}>
             <Row>
               <FaCamera size={25} style={{ margin: "0 auto" }} />
             </Row>
             <Row>
-              <h5 style={{ margin: "0 auto", fontSize: "13px" }}>Add a Photo</h5>
+              <h5 style={{ margin: "0 auto", fontSize: "13px" }}>
+                Add a Photo
+              </h5>
             </Row>
           </Button>
         );
       } else {
         studentPhoto = (
           <div>
-            <p
-              className="ProfilePicNoImage"
-            >
-              {this.state.fname.charAt(0)}
-              {this.state.lname.charAt(0)}
+            <p className="ProfilePicNoImage">
+              {fname.charAt(0)}
+              {lname.charAt(0)}
             </p>
           </div>
         );
       }
-    } else if (this.state.has_image === true) {
-      if (cookie.load('id') === this.state.id && cookie.load('user') === "student") {
+    } else if (has_image === true) {
+      if (
+        localStorage.getItem("id") === this.state.id &&
+        localStorage.getItem("type") === "Student"
+      ) {
         studentPhoto = (
           <>
             <Image
               className="ProfilePicImage"
-              src={`http://localhost:3001/resumesandimages/${this.state.photo}`}
+              src={`http://localhost:3001/resumesandimages/${photo}`}
               roundedcircle="true"
             />
-            <Button className="ProfilePicButtononImage" onClick={this.handleShow}>
+            <Button
+              className="ProfilePicButtononImage"
+              onClick={this.handleShow}
+            >
               <Row>
                 <FaCamera size={25} style={{ margin: "0 auto" }} />
               </Row>
               <Row>
                 <h5 style={{ margin: "0 auto", fontSize: "13px" }}>
-                    Change Photo
+                  Change Photo
                 </h5>
               </Row>
             </Button>
@@ -211,7 +228,7 @@ class PictureDetails extends React.Component {
           <>
             <Image
               className="ProfilePicImage"
-              src={`http://localhost:3001/resumesandimages/${this.state.photo}`}
+              src={`http://localhost:3001/resumesandimages/${photo}`}
               roundedcircle="true"
             />
           </>
@@ -227,24 +244,44 @@ class PictureDetails extends React.Component {
           onUpload={this.onUpload}
           photoHandler={this.photoHandler}
           errormessage={this.state.errormessage}
-          has_image={this.state.has_image}
+          has_image={has_image}
           onDelete={this.onDelete}
         />
         {studentPhoto}
         <Card.Title
           style={{
-            fontSize: "34px", fontWeight: "500", textAlign: "center", textTransform: "capitalize"
+            fontSize: "34px",
+            fontWeight: "500",
+            textAlign: "center",
+            textTransform: "capitalize",
           }}
         >
-          {this.state.fname}<br />
-          {this.state.lname}
+          {fname}
+          <br />
+          {lname}
         </Card.Title>
-        <Card.Subtitle style={{ fontSize: "18px", textAlign: "center", textTransform: "capitalize" }}>
-          {this.state.college}
+        <Card.Subtitle
+          style={{
+            fontSize: "18px",
+            textAlign: "center",
+            textTransform: "capitalize",
+          }}
+        >
+          {college}
         </Card.Subtitle>
       </Card>
     );
   }
 }
 
-export default PictureDetails;
+export default compose(
+  graphql(getStudentPictureInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateStudentPictureInfoMutation, {
+    name: "updateStudentPictureInfoMutation",
+  }),
+  graphql(deleteStudentPictureMutation, {
+    name: "deleteStudentPictureMutation",
+  })
+)(PictureDetails);
