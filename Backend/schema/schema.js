@@ -1,7 +1,16 @@
 const graphql = require("graphql");
-const bcrypt = require("bcryptjs");
 const Company = require("../models/Company/Companies");
 const Student = require("../models/Student/Students");
+
+const { companySignUp, companyLogIn } = require("../mutations/Company/auth");
+const {
+  companyUpdateBasicInfo,
+  companyUpdateContactInfo,
+  companyUpdatePictureInfo,
+  companyUpdateName,
+  companyDeletePicture,
+} = require("../mutations/Company/profile");
+const { studentSignUp, studentLogIn } = require("../mutations/Student/auth");
 
 const {
   GraphQLObjectType,
@@ -153,27 +162,7 @@ const Mutation = new GraphQLObjectType({
         location: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { name, email, password, location } = args;
-
-        //Check if company email exists
-        let company = await Company.findOne({ email });
-
-        if (company) {
-          throw new Error("An account with that email already exists");
-        }
-
-        company = new Company({
-          name,
-          email,
-          password,
-          location,
-        });
-
-        const salt = await bcrypt.genSalt(10);
-
-        company.password = await bcrypt.hash(password, salt);
-
-        return await company.save();
+        return companySignUp(args);
       },
     },
     loginCompany: {
@@ -183,25 +172,7 @@ const Mutation = new GraphQLObjectType({
         password: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { email, password } = args;
-
-        //Check if company email exists
-        let company = await Company.findOne({ email });
-
-        if (!company) {
-          throw new Error("Invalid Credentials");
-        }
-
-        const isPasswordAMatch = await bcrypt.compare(
-          password,
-          company.password
-        );
-
-        if (!isPasswordAMatch) {
-          throw new Error("Invalid Credentials");
-        }
-
-        return company;
+        return companyLogIn(args);
       },
     },
     updateCompanyBasicInfo: {
@@ -212,16 +183,7 @@ const Mutation = new GraphQLObjectType({
         description: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { id, location, description } = args;
-
-        let data = {
-          location,
-          description,
-        };
-        console.log(id);
-        let company = await Company.findByIdAndUpdate(id, data, { new: true });
-
-        return company;
+        return companyUpdateBasicInfo(args);
       },
     },
     updateCompanyContactInfo: {
@@ -232,16 +194,7 @@ const Mutation = new GraphQLObjectType({
         phonenumber: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { id, email, phonenumber } = args;
-
-        let data = {
-          email,
-          phonenumber,
-        };
-        console.log(id);
-        let company = await Company.findByIdAndUpdate(id, data, { new: true });
-
-        return company;
+        return companyUpdateContactInfo(args);
       },
     },
     updateCompanyPictureInfo: {
@@ -251,15 +204,7 @@ const Mutation = new GraphQLObjectType({
         photo: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { id, photo } = args;
-
-        let data = {
-          photo,
-        };
-        console.log(id);
-        let company = await Company.findByIdAndUpdate(id, data, { new: true });
-
-        return company;
+        return companyUpdatePictureInfo(args);
       },
     },
     updateCompanyName: {
@@ -269,15 +214,7 @@ const Mutation = new GraphQLObjectType({
         name: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { id, name } = args;
-
-        let data = {
-          name,
-        };
-        console.log(id);
-        let company = await Company.findByIdAndUpdate(id, data, { new: true });
-
-        return company;
+        return companyUpdateName(args);
       },
     },
     deleteCompanyPicture: {
@@ -286,15 +223,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: GraphQLID },
       },
       async resolve(parent, args) {
-        let { id } = args;
-
-        let company = await Company.findByIdAndUpdate(
-          id,
-          { $unset: { photo: null } },
-          { new: true }
-        );
-
-        return company;
+        return companyDeletePicture(args);
       },
     },
     addStudent: {
@@ -307,30 +236,7 @@ const Mutation = new GraphQLObjectType({
         college: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { fname, lname, email, password, college } = args;
-
-        //Check if student email exists
-        let student = await Student.findOne({ email });
-
-        if (student)
-          throw new Error("An account with that email already exists");
-
-        student = new Student({
-          fname,
-          lname,
-          email,
-          password,
-          schools: {
-            name: college,
-            primaryschool: "true",
-          },
-        });
-
-        const salt = await bcrypt.genSalt(10);
-
-        student.password = await bcrypt.hash(password, salt);
-
-        return await student.save();
+        return studentSignUp(args);
       },
     },
     loginStudent: {
@@ -340,25 +246,7 @@ const Mutation = new GraphQLObjectType({
         password: { type: GraphQLString },
       },
       async resolve(parent, args) {
-        let { email, password } = args;
-
-        //Check if company email exists
-        let student = await Student.findOne({ email });
-
-        if (!student) {
-          throw new Error("Invalid Credentials");
-        }
-
-        const isPasswordAMatch = await bcrypt.compare(
-          password,
-          student.password
-        );
-
-        if (!isPasswordAMatch) {
-          throw new Error("Invalid Credentials");
-        }
-
-        return student;
+        return studentLogIn(args);
       },
     },
   },
