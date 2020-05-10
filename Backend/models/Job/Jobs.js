@@ -63,6 +63,14 @@ const JobsSchema = new mongoose.Schema(
       ref: "companies",
       required: true,
     },
+    companyname: {
+      type: String,
+      required: true,
+    },
+    companyphoto: {
+      type: String,
+      required: true,
+    },
   },
   {
     versionKey: false,

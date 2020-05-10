@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate");
 
 const ApplicationsSchema = new mongoose.Schema(
   {
@@ -38,7 +37,6 @@ const ApplicationsSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
-ApplicationsSchema.plugin(mongoosePaginate);
 module.exports = Applications = mongoose.model(
   "Applications",
   ApplicationsSchema

@@ -22,4 +22,28 @@ const getCompanyJobsListQuery = gql`
   }
 `;
 
-export { getCompanyJobsListQuery };
+const getCompanyJobQuery = gql`
+  query($id: ID) {
+    job(id: $id) {
+      title
+      deadlinemonth
+      deadlineday
+      deadlineyear
+      deadlinetime
+      deadlinedaytime
+      location
+      salary
+      salarytime
+      description
+      category
+      postingmonth
+      postingday
+      postingyear
+      companyid
+      companyname
+      companyphoto
+    }
+  }
+`;
+
+export { getCompanyJobsListQuery, getCompanyJobQuery };

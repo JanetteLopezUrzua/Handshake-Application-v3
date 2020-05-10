@@ -40,4 +40,12 @@ const createCompanyJobPostMutation = gql`
   }
 `;
 
-export { createCompanyJobPostMutation };
+const deleteCompanyJobPostMutation = gql`
+  mutation($id: ID) {
+    deleteCompanyJob(id: $id) {
+      _id
+    }
+  }
+`;
+
+export { createCompanyJobPostMutation, deleteCompanyJobPostMutation };
