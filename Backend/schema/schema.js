@@ -159,8 +159,6 @@ const RootQuery = new GraphQLObjectType({
       args: { search: { type: GraphQLString } },
       async resolve(parent, args) {
         const { search } = args;
-        console.log("nameorcollege:", search);
-
         let studentsList = await Student.find({
           $or: [
             {

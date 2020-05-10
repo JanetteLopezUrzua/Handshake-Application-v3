@@ -5,49 +5,33 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Container from "react-bootstrap/Container";
-// import Col from "react-bootstrap/Col";
-// import Row from "react-bootstrap/Row";
 import { Link } from "react-router-dom";
 import cookie from "react-cookies";
 import { FaSearch } from "react-icons/fa";
 import axios from "axios";
-// import {Redirect} from 'react-router';
 import hslogo from "../assets/logo.JPG";
 
 class Navigationbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: cookie.load("id"),
-      // fname: "",
+      id: localStorage.getItem("id"),
       photo: "",
       has_image: false,
       firstnameletter: "",
       lastnameletter: "",
 
       // Company
-      // name: "",
       nameletter: "",
     };
   }
 
   componentDidMount() {
-    if (cookie.load("user") === "student") this.getStudentImage();
-    if (cookie.load("user") === "company") this.getCompanyImage();
+    if (localStorage.getItem("type") === "Student") this.getStudentImage();
+    if (localStorage.getItem("type") === "Company") this.getCompanyImage();
   }
 
-  // componentDidUpdate(props, state) {
-  //   if (this.props.photochange !== props.photochange) {
-  //     this.getImage();
-  //   }
-  //   // this.props.photochange = false;
-  //   console.log("THIS PROPS ARE", this.props);
-  //   console.log("THE CURRENT PROPS ARE", props);
-  //   console.log("THE CURRENTS STATE", state);
-  // }
-
   getStudentImage() {
-    // console.log("STUDENT NAV BAR", this.state.id);
     axios
       .get(`http://localhost:3001/student/navbar/${this.state.id}`)
       .then((response) => {
@@ -58,7 +42,6 @@ class Navigationbar extends React.Component {
 
         console.log(response.data);
         this.setState({
-          //  fname: info.fname,
           photo: info.photo,
           firstnameletter: fn,
           lastnameletter: ln,
@@ -69,10 +52,7 @@ class Navigationbar extends React.Component {
             has_image: false,
           });
         } else {
-          // const imageURL = `${Buffer.from(info.photo).toString()}`;
-
           this.setState({
-            // photo: imageURL,
             has_image: true,
           });
         }
@@ -86,7 +66,6 @@ class Navigationbar extends React.Component {
   }
 
   getCompanyImage() {
-    // console.log("Company NAV BAR", this.state.id);
     axios
       .get(`http://localhost:3001/company/navbar/${this.state.id}`)
       .then((response) => {
@@ -96,7 +75,6 @@ class Navigationbar extends React.Component {
 
         console.log(response.data);
         this.setState({
-          // name: info.name,
           photo: info.photo,
           nameletter: cn,
         });
@@ -106,10 +84,7 @@ class Navigationbar extends React.Component {
             has_image: false,
           });
         } else {
-          // const imageURL = `${Buffer.from(info.photo).toString()}`;
-
           this.setState({
-            // photo: imageURL,
             has_image: true,
           });
         }
@@ -122,16 +97,16 @@ class Navigationbar extends React.Component {
       });
   }
 
-  // handle logout to destroy the cookie
+  // handle logout by removing items in localstorage
   handleLogout = () => {
-    cookie.remove("id", { path: "/" });
-    cookie.remove("user", { path: "/" });
+    localStorage.removeItem("id", { path: "/" });
+    localStorage.removeItem("type", { path: "/" });
   };
 
   render() {
     let img = "";
 
-    if (cookie.load("user") === "student") {
+    if (localStorage.getItem("type") === "Student") {
       if (this.state.has_image === true) {
         img = (
           <Container>
@@ -155,7 +130,7 @@ class Navigationbar extends React.Component {
       }
     }
 
-    if (cookie.load("user") === "company") {
+    if (localStorage.getItem("type") === "Company") {
       if (this.state.has_image === true) {
         img = (
           <Container>
@@ -177,7 +152,7 @@ class Navigationbar extends React.Component {
     }
 
     let jobspath = "";
-    if (cookie.load("user") === "student") {
+    if (localStorage.getItem("type") === "Student") {
       jobspath = "/student/jobs/search";
     } else {
       jobspath = "/company/jobs";
@@ -213,7 +188,7 @@ class Navigationbar extends React.Component {
           </Nav.Link>
           <Link
             className="navbaritem"
-            to={`/${localStorage.getItem("type")}/students`}
+            to={`/${localStorage.getItem("type").toLowerCase()}/students`}
           >
             <span>Students</span>
           </Link>
@@ -226,7 +201,9 @@ class Navigationbar extends React.Component {
           <NavDropdown className="navbardropdown" title={img}>
             <Link
               style={{ color: "black" }}
-              to={`/${cookie.load("user")}/${cookie.load("id")}`}
+              to={`/${localStorage
+                .getItem("type")
+                .toLowerCase()}/${localStorage.getItem("id")}`}
             >
               Profile
             </Link>
