@@ -8,11 +8,11 @@ import Row from "react-bootstrap/Row";
 import { FaCamera } from "react-icons/fa";
 import ModalPicture from "./Modal";
 import { graphql, compose } from "react-apollo";
-import { getStudentPictureInfoQuery } from "../../../queries/Student/queries";
+import { getStudentPictureInfoQuery } from "../../../queries/Student/auth_and_profile_queries";
 import {
   updateStudentPictureInfoMutation,
   deleteStudentPictureMutation,
-} from "../../../mutation/Student/mutations";
+} from "../../../mutation/Student/auth_and_profile_mutations";
 
 class PictureDetails extends React.Component {
   constructor() {
@@ -148,8 +148,8 @@ class PictureDetails extends React.Component {
     let data = this.props.data;
     console.log(data);
 
-    let fname = null;
-    let lname = null;
+    let fname = "";
+    let lname = "";
     let college = null;
     let photo = null;
     if (!data.loading) {

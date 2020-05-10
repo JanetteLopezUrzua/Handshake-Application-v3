@@ -2,8 +2,8 @@ import React from "react";
 import DisplayObjective from "./DisplayObjective";
 import EditObjective from "./EditObjective";
 import { graphql, compose } from "react-apollo";
-import { getStudentCareerObjectiveQuery } from "../../../queries/Student/queries";
-import { updateStudentCareerObjectiveMutation } from "../../../mutation/Student/mutations";
+import { getStudentCareerObjectiveQuery } from "../../../queries/Student/auth_and_profile_queries";
+import { updateStudentCareerObjectiveMutation } from "../../../mutation/Student/auth_and_profile_mutations";
 
 class CareerObjective extends React.Component {
   constructor(props) {

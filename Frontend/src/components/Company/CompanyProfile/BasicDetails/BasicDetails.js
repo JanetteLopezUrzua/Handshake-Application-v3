@@ -2,8 +2,8 @@ import React from "react";
 import DisplayInfo from "./DisplayInfo";
 import EditInfo from "./EditInfo";
 import { graphql, compose } from "react-apollo";
-import { getCompanyBasicInfoQuery } from "../../../queries/Company/queries";
-import { updateCompanyBasicInfoMutation } from "../../../mutation/Company/mutations";
+import { getCompanyBasicInfoQuery } from "../../../queries/Company/auth_and_profile_queries";
+import { updateCompanyBasicInfoMutation } from "../../../mutation/Company/auth_and_profile_mutations";
 
 class BasicDetails extends React.Component {
   constructor() {

@@ -154,6 +154,33 @@ const RootQuery = new GraphQLObjectType({
         return student;
       },
     },
+    students: {
+      type: new GraphQLList(StudentType),
+      args: { search: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const { search } = args;
+        console.log("nameorcollege:", search);
+
+        let studentsList = await Student.find({
+          $or: [
+            {
+              fname: { $regex: ".*" + search + ".*", $options: "i" },
+            },
+            {
+              lname: { $regex: ".*" + search + ".*", $options: "i" },
+            },
+            {
+              "schools.name": {
+                $regex: ".*" + search + ".*",
+                $options: "i",
+              },
+            },
+          ],
+        });
+
+        return studentsList;
+      },
+    },
   },
 });
 

@@ -11,12 +11,12 @@ import Form from "react-bootstrap/Form";
 import { MdEdit } from "react-icons/md";
 import ModalPicture from "./Modal";
 import { graphql, compose } from "react-apollo";
-import { getCompanyPictureInfoQuery } from "../../../queries/Company/queries";
+import { getCompanyPictureInfoQuery } from "../../../queries/Company/auth_and_profile_queries";
 import {
   updateCompanyPictureInfoMutation,
   updateCompanyNameMutation,
   deleteCompanyPictureMutation,
-} from "../../../mutation/Company/mutations";
+} from "../../../mutation/Company/auth_and_profile_mutations";
 
 class PictureDetails extends React.Component {
   constructor() {

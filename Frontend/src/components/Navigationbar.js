@@ -211,7 +211,10 @@ class Navigationbar extends React.Component {
           <Nav.Link className="navbaritem" href="#">
             <span>Q&amp;A</span>
           </Nav.Link>
-          <Link className="navbaritem" to={`/${cookie.load("user")}/students`}>
+          <Link
+            className="navbaritem"
+            to={`/${localStorage.getItem("type")}/students`}
+          >
             <span>Students</span>
           </Link>
           <Nav.Link className="navbaritem" href="#">

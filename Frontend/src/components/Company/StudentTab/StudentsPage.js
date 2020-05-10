@@ -1,133 +1,67 @@
-import React from 'react';
+import React from "react";
 import "../../components.css";
-import axios from "axios";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import Row from "react-bootstrap/Row";
-// import Button from "react-bootstrap/Button";
 import { Redirect } from "react-router";
-import cookie from "react-cookies";
 import DisplayStudent from "./StudentsList/DisplayStudent";
-
+import { graphql } from "react-apollo";
+import { getCompanyStudentsTabQuery } from "../../queries/Company/students_tab_queries";
 
 class StudentTab extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: "",
-      college: "",
-      skill: "",
-      students: [],
-      message: "",
+      nameorcollege: "",
     };
-  }
-
-  componentDidMount() {
-    this.getInfo();
   }
 
   componentDidUpdate(previousProps, previousState) {
-    if ((previousState.name !== this.state.name) || (previousState.college !== this.state.college) || (previousState.skill !== this.state.skill)) {
-      this.getInfo();
+    if (previousState.nameorcollege !== this.state.nameorcollege) {
+      let search = this.state.nameorcollege;
+      this.props.data.refetch({ search: search });
     }
   }
 
-  getInfo = () => {
-    let path = "";
-
-    const wspatt = new RegExp("^ *$");
-    const name = (wspatt.test(this.state.name) || this.state.name === "") ? "" : this.state.name;
-    const college = (wspatt.test(this.state.college) || this.state.college === "") ? "" : this.state.college;
-    const skill = (wspatt.test(this.state.skill) || this.state.skill === "") ? "" : this.state.skill;
-
-    if (name === "" && college === "" && skill === "") path = "all";
-    if (name !== "" && college === "" && skill === "") path = "name";
-    if (name === "" && college !== "" && skill === "") path = "college";
-    if (name === "" && college === "" && skill !== "") path = "skill";
-    if (name !== "" && college !== "" && skill === "") path = "nameandcollege";
-    if (name !== "" && college === "" && skill !== "") path = "nameandskill";
-    if (name === "" && college !== "" && skill !== "") path = "collegeandskill";
-    if (name !== "" && college !== "" && skill !== "") path = "nameandcollegeandskill";
-
-
-    const data = {
-      name: this.state.name,
-      major: this.state.major,
-      skill: this.state.skill,
-    };
-
-    axios.post(`http://localhost:3001/company/studentslist/${path}`, data)
-      .then(response => {
-        const info = response.data;
-
-        this.setState({
-          students: info.students,
-        });
-
-        if (this.state.students === undefined || this.state.students.length === 0) {
-          this.setState({
-            message: "No Students Found",
-          });
-        } else {
-          this.setState({
-            message: "",
-          });
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      });
+  handleChange = (e) => {
+    this.setState({ [e.target.id]: e.target.value });
   };
-
-  handleName = (e) => {
-    this.setState({
-      name: e.target.value
-    });
-  };
-
-  handleCollege = (e) => {
-    this.setState({
-      college: e.target.value
-    });
-  };
-
-  handleSkill = (e) => {
-    this.setState({
-      skill: e.target.value
-    });
-  };
-
-  // handleClick = (e) => {
-  //   e.preventDefault();
-  //   this.getInfo();
-  // };
-
-  // clear = (e) => {
-  //   e.preventDefault();
-  //   this.setState({
-  //     major: "",
-  //     name: "",
-  //     college: "",
-  //   });
-  //   // this.getInfo();
-  // };
 
   render() {
     // if not logged in go to login page
     let redirectVar = null;
-    if (!cookie.load('id')) {
+    if (!localStorage.getItem("id")) {
       redirectVar = <Redirect to="/" />;
-    } else if (cookie.load('id') && cookie.load('user') === "student") {
-      redirectVar = <Redirect to={`/student/${cookie.load('id')}`} />;
+    } else if (
+      localStorage.getItem("id") &&
+      localStorage.getItem("type") === "Student"
+    ) {
+      redirectVar = <Redirect to={`/student/${localStorage.getItem("id")}`} />;
     }
+
+    let data = this.props.data;
+    console.log(data);
+
+    let message = null;
+    let students = null;
+    if (!data.loading) {
+      students = data.students;
+    }
+
+    if (students === null || students.length === 0) {
+      message = "No Students Found";
+    } else message = "";
 
     let studentsList = "";
 
-    if (this.state.students === undefined || this.state.students.length === 0) studentsList = "";
-    else studentsList = this.state.students.map((student) => <DisplayStudent key={student.id} student={student} />);
+    if (students === null || students.length === 0) studentsList = "";
+    else
+      studentsList = students.map((student) => (
+        <DisplayStudent key={student._id} student={student} />
+      ));
 
     return (
       <div>
@@ -136,7 +70,9 @@ class StudentTab extends React.Component {
           <Container>
             <Row>
               <Col sm={4}>
-                <Card.Title className="studentslistbar"><h2>Explore Students</h2></Card.Title>
+                <Card.Title className="studentslistbar">
+                  <h2>Explore Students</h2>
+                </Card.Title>
               </Col>
             </Row>
           </Container>
@@ -148,34 +84,29 @@ class StudentTab extends React.Component {
                 <ListGroup variant="flush">
                   <ListGroup.Item className="studentslisttitle">
                     <Row>
-                      <Col>
-                      Search
-                      </Col>
-                      {/* <Col style={{ textAlign: "right" }}>
-                        <Button variant="Link" onClick={this.clear} className="clearbutton">CLEAR</Button>
-                      </Col> */}
+                      <Col>Search</Col>
                     </Row>
                   </ListGroup.Item>
                   <ListGroup.Item>
-                    <Card.Text className="studentslistsubtitle">Name</Card.Text>
-                    <Form.Control onChange={this.handleName} name="name" type="search" value={this.state.name} />
-                  </ListGroup.Item>
-                  <ListGroup.Item>
-                    <Card.Text className="studentslistsubtitle">College</Card.Text>
-                    <Form.Control onChange={this.handleCollege} name="college" type="search" value={this.state.college} />
-                  </ListGroup.Item>
-                  <ListGroup.Item>
-                    <Card.Text className="studentslistsubtitle">Skill</Card.Text>
-                    <Form.Control onChange={this.handleSkill} name="skill" type="search" value={this.state.skill} />
+                    <Card.Text className="studentslistsubtitle">
+                      Name or College
+                    </Card.Text>
+                    <Form.Group controlId="nameorcollege">
+                      <Form.Control
+                        onChange={this.handleChange}
+                        name="name"
+                        type="search"
+                        value={this.state.nameorcollege}
+                      />
+                    </Form.Group>
                   </ListGroup.Item>
                 </ListGroup>
-                {/* <Button onClick={this.handleClick}>Search</Button> */}
               </Card>
             </Col>
             <Col sm={8}>
               <Container>
                 {studentsList}
-                <p className="errormessage">{this.state.message}</p>
+                <p className="errormessage">{message}</p>
               </Container>
             </Col>
           </Row>
@@ -185,4 +116,8 @@ class StudentTab extends React.Component {
   }
 }
 
-export default StudentTab;
+export default graphql(getCompanyStudentsTabQuery, {
+  options: () => ({
+    variables: { search: "" },
+  }),
+})(StudentTab);

@@ -2,8 +2,8 @@ import React from "react";
 import DisplayContactInfo from "./DisplayContactInfo";
 import EditContactInfo from "./EditContactInfo";
 import { graphql, compose } from "react-apollo";
-import { getStudentContactInfoQuery } from "../../../queries/Student/queries";
-import { updateStudentContactInfoMutation } from "../../../mutation/Student/mutations";
+import { getStudentContactInfoQuery } from "../../../queries/Student/auth_and_profile_queries";
+import { updateStudentContactInfoMutation } from "../../../mutation/Student/auth_and_profile_mutations";
 
 class ContactInformation extends React.Component {
   constructor() {

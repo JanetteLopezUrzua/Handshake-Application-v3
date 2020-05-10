@@ -7,7 +7,7 @@ import { Redirect } from "react-router";
 import "../components.css";
 import hsimage from "../../assets/Handshakebanner.jpg";
 import { graphql } from "react-apollo";
-import { addCompanyMutation } from "../mutation/Company/mutations";
+import { addCompanyMutation } from "../mutation/Company/auth_and_profile_mutations";
 
 class Signup extends React.Component {
   constructor() {

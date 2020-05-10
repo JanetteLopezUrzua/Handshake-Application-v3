@@ -7,7 +7,7 @@ import { Redirect } from "react-router";
 import "../components.css";
 import hsimage from "../../assets/Handshakebanner.jpg";
 import { graphql } from "react-apollo";
-import { loginCompanyMutation } from "../mutation/Company/mutations";
+import { loginCompanyMutation } from "../mutation/Company/auth_and_profile_mutations";
 
 class Login extends React.Component {
   constructor(props) {
