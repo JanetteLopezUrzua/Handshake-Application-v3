@@ -1,6 +1,7 @@
 const graphql = require("graphql");
 const Company = require("../models/Company/Companies");
 const Student = require("../models/Student/Students");
+const Job = require("../models/Job/Jobs");
 
 const { companySignUp, companyLogIn } = require("../mutations/Company/auth");
 const {
@@ -18,6 +19,7 @@ const {
   studentUpdateCareerObjective,
   studentUpdateContactInfo,
 } = require("../mutations/Student/profile");
+const { companyNewJob } = require("../mutations/Company/jobs");
 
 const {
   GraphQLObjectType,
@@ -72,32 +74,18 @@ const StudentType = new GraphQLObjectType({
     phonenumber: {
       type: GraphQLString,
     },
-    skillset: {
-      type: SkillType,
-      resolve(parent, args) {
-        return authors.find((author) => author.id === parent.authorId);
-      },
-    },
     schools: {
       type: new GraphQLList(SchoolType),
       resolve(parent, args) {
         return parent.schools;
       },
     },
-    jobs: {
-      type: JobType,
+    work: {
+      type: WorkType,
       resolve(parent, args) {
         return authors.find((author) => author.id === parent.authorId);
       },
     },
-  }),
-});
-
-const SkillType = new GraphQLObjectType({
-  name: "Skill",
-  fields: () => ({
-    _id: { type: GraphQLID },
-    skill: { type: GraphQLString },
   }),
 });
 
@@ -116,8 +104,8 @@ const SchoolType = new GraphQLObjectType({
   }),
 });
 
-const JobType = new GraphQLObjectType({
-  name: "Job",
+const WorkType = new GraphQLObjectType({
+  name: "Work",
   fields: () => ({
     _id: { type: GraphQLID },
     companyname: { type: GraphQLString },
@@ -127,6 +115,28 @@ const JobType = new GraphQLObjectType({
     enddatemonth: { type: GraphQLInt },
     enddateyear: { type: GraphQLInt },
     description: { type: GraphQLString },
+  }),
+});
+
+const JobType = new GraphQLObjectType({
+  name: "Job",
+  fields: () => ({
+    _id: { type: GraphQLID },
+    title: { type: GraphQLString },
+    deadlinemonth: { type: GraphQLInt },
+    deadlineday: { type: GraphQLInt },
+    deadlineyear: { type: GraphQLInt },
+    deadlinetime: { type: GraphQLString },
+    deadlinedaytime: { type: GraphQLString },
+    location: { type: GraphQLString },
+    salary: { type: GraphQLString },
+    salarytime: { type: GraphQLString },
+    description: { type: GraphQLString },
+    category: { type: GraphQLString },
+    postingmonth: { type: GraphQLInt },
+    postingday: { type: GraphQLInt },
+    postingyear: { type: GraphQLInt },
+    companyid: { type: GraphQLID },
   }),
 });
 
@@ -177,6 +187,18 @@ const RootQuery = new GraphQLObjectType({
         });
 
         return studentsList;
+      },
+    },
+    jobs: {
+      type: new GraphQLList(JobType),
+      args: { id: { type: GraphQLID } },
+      async resolve(parent, args) {
+        const { id } = args;
+        let jobsList = await Job.find({
+          companyid: id,
+        });
+
+        return jobsList;
       },
     },
   },
@@ -256,6 +278,29 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return companyDeletePicture(args);
+      },
+    },
+    createCompanyNewJob: {
+      type: JobType,
+      args: {
+        title: { type: GraphQLString },
+        deadlinemonth: { type: GraphQLInt },
+        deadlineday: { type: GraphQLInt },
+        deadlineyear: { type: GraphQLInt },
+        deadlinetime: { type: GraphQLString },
+        deadlinedaytime: { type: GraphQLString },
+        location: { type: GraphQLString },
+        salary: { type: GraphQLString },
+        salarytime: { type: GraphQLString },
+        description: { type: GraphQLString },
+        category: { type: GraphQLString },
+        postingmonth: { type: GraphQLInt },
+        postingday: { type: GraphQLInt },
+        postingyear: { type: GraphQLInt },
+        company_id: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return companyNewJob(args);
       },
     },
     addStudent: {

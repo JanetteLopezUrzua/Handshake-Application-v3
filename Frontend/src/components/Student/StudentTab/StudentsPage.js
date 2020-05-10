@@ -1,6 +1,5 @@
 import React from "react";
 import "../../components.css";
-import axios from "axios";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
@@ -8,7 +7,6 @@ import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import Row from "react-bootstrap/Row";
 import { Redirect } from "react-router";
-import cookie from "react-cookies";
 import DisplayStudent from "./StudentsList/DisplayStudent";
 import { graphql } from "react-apollo";
 import { getStudentStudentsTabQuery } from "../../queries/Student/students_tab_queries";

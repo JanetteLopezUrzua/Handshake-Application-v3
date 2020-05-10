@@ -5,16 +5,17 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import axios from "axios";
-import cookie from 'react-cookies';
 import { Redirect } from "react-router";
+import { graphql, compose } from "react-apollo";
+import { getCompanyJobsListQuery } from "../../../queries/Company/jobs_queries";
+import { createCompanyJobPostMutation } from "../../../mutation/Company/jobs_mutations";
 
 class NewJobPosting extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      company_id: cookie.load("id"),
+      company_id: localStorage.getItem("id"),
       title: "",
       deadlinemonth: "",
       deadlineday: "",
@@ -31,137 +32,189 @@ class NewJobPosting extends React.Component {
     };
   }
 
-  titleChangeHandler = e => {
+  titleChangeHandler = (e) => {
     this.setState({
-      title: e.target.value
+      title: e.target.value,
     });
   };
 
-  deadlineMonthChangeHandler = e => {
+  deadlineMonthChangeHandler = (e) => {
     this.setState({
-      deadlinemonth: e.target.value
+      deadlinemonth: e.target.value,
     });
   };
 
-  deadlineDayChangeHandler = e => {
+  deadlineDayChangeHandler = (e) => {
     this.setState({
-      deadlineday: e.target.value
+      deadlineday: e.target.value,
     });
   };
 
-  deadlineYearChangeHandler = e => {
+  deadlineYearChangeHandler = (e) => {
     this.setState({
-      deadlineyear: e.target.value
+      deadlineyear: e.target.value,
     });
   };
 
-  deadlineTimeChangeHandler = e => {
+  deadlineTimeChangeHandler = (e) => {
     this.setState({
-      deadlinetime: e.target.value
+      deadlinetime: e.target.value,
     });
   };
 
-  deadlineDayTimeChangeHandler = e => {
+  deadlineDayTimeChangeHandler = (e) => {
     this.setState({
-      deadlinedaytime: e.target.value
+      deadlinedaytime: e.target.value,
     });
   };
 
- locationChangeHandler = e => {
-   this.setState({
-     location: e.target.value
-   });
- };
-
-  salaryChangeHandler = e => {
+  locationChangeHandler = (e) => {
     this.setState({
-      salary: e.target.value
+      location: e.target.value,
     });
   };
 
-  salaryTimeChangeHandler = e => {
+  salaryChangeHandler = (e) => {
+    this.setState({
+      salary: e.target.value,
+    });
+  };
+
+  salaryTimeChangeHandler = (e) => {
     this.setState({
       salarytime: e.target.value,
     });
   };
 
-  descriptionChangeHandler = e => {
+  descriptionChangeHandler = (e) => {
     this.setState({
-      description: e.target.value
+      description: e.target.value,
     });
   };
 
-  categoryChangeHandler = e => {
+  categoryChangeHandler = (e) => {
     this.setState({
-      category: e.target.value
+      category: e.target.value,
     });
   };
 
-  handlePost = (e) => {
+  handlePost = async (e) => {
     e.preventDefault();
 
     const {
-      title, deadlinemonth, deadlineday, deadlineyear, deadlinetime, deadlinedaytime, location, salary, salarytime, description, category
+      title,
+      deadlinemonth,
+      deadlineday,
+      deadlineyear,
+      deadlinetime,
+      deadlinedaytime,
+      location,
+      salary,
+      salarytime,
+      description,
+      category,
     } = this.state;
+
+    console.log("FFUCCKKKKKKK", this.state);
 
     let err = "";
 
     const wspatt = new RegExp("^ *$");
-    if (title === "" || wspatt.test(title)) {
+    if (title.trim() === "" || wspatt.test(title)) {
       err = "Required. Enter Title.";
-    } else if (deadlinemonth === "" || wspatt.test(deadlinemonth) || deadlineday === "" || wspatt.test(deadlineday) || deadlineyear === "" || wspatt.test(deadlineyear)) {
+    } else if (
+      deadlinemonth.trim() === "" ||
+      wspatt.test(deadlinemonth) ||
+      deadlineday.trim() === "" ||
+      wspatt.test(deadlineday) ||
+      deadlineyear.trim() === "" ||
+      wspatt.test(deadlineyear)
+    ) {
       err = "Required. Select Complete Deadline Date.";
-    } else if (deadlinetime === "" || wspatt.test(deadlinetime) || deadlinedaytime === "" || wspatt.test(deadlinedaytime)) {
+    } else if (
+      deadlinetime.trim() === "" ||
+      wspatt.test(deadlinetime) ||
+      deadlinedaytime.trim() === "" ||
+      wspatt.test(deadlinedaytime)
+    ) {
       err = "Required. Select Complete Deadline Time.";
-    } else if (location === "" || wspatt.test(location)) {
+    } else if (location.trim() === "" || wspatt.test(location)) {
       err = "Required. Enter Location.";
-    } else if (salary === "" || wspatt.test(salary) || salarytime === "" || wspatt.test(salarytime)) {
+    } else if (
+      salary.trim() === "" ||
+      wspatt.test(salary) ||
+      salarytime.trim() === "" ||
+      wspatt.test(salarytime)
+    ) {
       err = "Required. Select Complete Salary Information.";
-    } else if (category === "" || wspatt.test(category)) {
+    } else if (category.trim() === "" || wspatt.test(category)) {
       err = "Required. Select Job Category.";
-    } else if (description === "" || wspatt.test(description)) {
+    } else if (description.trim() === "" || wspatt.test(description)) {
       err = "Required. Enter Description.";
     }
 
     if (err === "") {
       const date = new Date();
-      const day = (`${date.getDate()}`).slice(-2);
-      let month = (`${date.getMonth()}`).slice(-2);
+      const day = `${date.getDate()}`.slice(-2);
+      let month = `${date.getMonth()}`.slice(-2);
       const year = date.getFullYear();
 
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+      let {
+        company_id,
+        title,
+        deadlinemonth,
+        deadlineday,
+        deadlineyear,
+        deadlinetime,
+        deadlinedaytime,
+        location,
+        salary,
+        salarytime,
+        description,
+        category,
+      } = this.state;
 
-      month = months[month];
+      deadlinemonth = parseInt(deadlinemonth);
+      deadlineday = parseInt(deadlineday);
+      deadlineyear = parseInt(deadlineyear);
 
-      const postingdatevar = `${month} ${day}, ${year}`;
-      console.log("COKIE", cookie.load("id"));
-      console.log(this.state.company_id);
-      const data = {
-        company_id: this.state.company_id,
-        title: this.state.title,
-        deadlinemonth: this.state.deadlinemonth,
-        deadlineday: this.state.deadlineday,
-        deadlineyear: this.state.deadlineyear,
-        deadlinetime: this.state.deadlinetime,
-        deadlinedaytime: this.state.deadlinedaytime,
-        location: this.state.location,
-        salary: this.state.salary,
-        salarytime: this.state.salarytime,
-        description: this.state.description,
-        category: this.state.category,
-        postingdate: postingdatevar,
-      };
+      let postingmonth = parseInt(month);
+      let postingday = parseInt(day);
+      let postingyear = parseInt(year);
 
-      axios.post("http://localhost:3001/company/newjob", data)
-        .then(response => {
-          console.log(response);
-          this.setState({
-            redirect: true,
-          });
-        })
-        .catch(error => {
-          console.log(error);
+      try {
+        await this.props.createCompanyJobPostMutation({
+          variables: {
+            company_id: company_id,
+            title: title,
+            deadlinemonth: deadlinemonth,
+            deadlineday: deadlineday,
+            deadlineyear: deadlineyear,
+            deadlinetime: deadlinetime,
+            deadlinedaytime: deadlinedaytime,
+            location: location,
+            salary: salary,
+            salarytime: salarytime,
+            description: description,
+            category: category,
+            postingmonth: postingmonth,
+            postingday: postingday,
+            postingyear: postingyear,
+          },
+          refetchQueries: [
+            {
+              query: getCompanyJobsListQuery,
+              variables: { id: localStorage.getItem("id") },
+            },
+          ],
         });
+
+        this.setState({
+          redirect: true,
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
     } else {
       this.setState({
         errormessage: err,
@@ -178,18 +231,30 @@ class NewJobPosting extends React.Component {
     return (
       <Container>
         {redirectVar}
-        <h2 style={{ marginLeft: "15px", marginTop: "10px" }}>Create a Job Post</h2>
+        <h2 style={{ marginLeft: "15px", marginTop: "10px" }}>
+          Create a Job Post
+        </h2>
         <Card>
           <Form.Group controlId="title">
             <Form.Label className="labels">Job Title</Form.Label>
-            <Form.Control onChange={this.titleChangeHandler} name="title" type="text" />
+            <Form.Control
+              onChange={this.titleChangeHandler}
+              name="title"
+              type="text"
+            />
           </Form.Group>
           <Form.Group controlId="date">
             <Form.Label className="labels">Deadline Date</Form.Label>
             <Row>
               <Col>
-                <Form.Control as="select" onChange={this.deadlineMonthChangeHandler} name="deadlinemonth">
-                  <option value="" hidden> </option>
+                <Form.Control
+                  as="select"
+                  onChange={this.deadlineMonthChangeHandler}
+                  name="deadlinemonth"
+                >
+                  <option value="" hidden>
+                    {" "}
+                  </option>
                   <option value="1">January</option>
                   <option value="2">February</option>
                   <option value="3">March</option>
@@ -205,8 +270,14 @@ class NewJobPosting extends React.Component {
                 </Form.Control>
               </Col>
               <Col>
-                <Form.Control as="select" onChange={this.deadlineDayChangeHandler} name="deadlineday">
-                  <option value="" hidden> </option>
+                <Form.Control
+                  as="select"
+                  onChange={this.deadlineDayChangeHandler}
+                  name="deadlineday"
+                >
+                  <option value="" hidden>
+                    {" "}
+                  </option>
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
@@ -241,8 +312,14 @@ class NewJobPosting extends React.Component {
                 </Form.Control>
               </Col>
               <Col>
-                <Form.Control as="select" onChange={this.deadlineYearChangeHandler} name="deadlineyear">
-                  <option value="" hidden> </option>
+                <Form.Control
+                  as="select"
+                  onChange={this.deadlineYearChangeHandler}
+                  name="deadlineyear"
+                >
+                  <option value="" hidden>
+                    {" "}
+                  </option>
                   <option value="2030">2030</option>
                   <option value="2029">2029</option>
                   <option value="2028">2028</option>
@@ -262,8 +339,14 @@ class NewJobPosting extends React.Component {
             <Form.Label className="labels">Deadline Time</Form.Label>
             <Row>
               <Col>
-                <Form.Control as="select" onChange={this.deadlineTimeChangeHandler} name="deadlinetime">
-                  <option value="" hidden> </option>
+                <Form.Control
+                  as="select"
+                  onChange={this.deadlineTimeChangeHandler}
+                  name="deadlinetime"
+                >
+                  <option value="" hidden>
+                    {" "}
+                  </option>
                   <option value="12:00">12:00</option>
                   <option value="12:15">12:15</option>
                   <option value="12:30">12:30</option>
@@ -315,8 +398,14 @@ class NewJobPosting extends React.Component {
                 </Form.Control>
               </Col>
               <Col>
-                <Form.Control as="select" onChange={this.deadlineDayTimeChangeHandler} name="deadlinedaytime">
-                  <option value="" hidden> </option>
+                <Form.Control
+                  as="select"
+                  onChange={this.deadlineDayTimeChangeHandler}
+                  name="deadlinedaytime"
+                >
+                  <option value="" hidden>
+                    {" "}
+                  </option>
                   <option value="AM">AM</option>
                   <option value="PM">PM</option>
                 </Form.Control>
@@ -325,18 +414,32 @@ class NewJobPosting extends React.Component {
           </Form.Group>
           <Form.Group controlId="location">
             <Form.Label className="labels">Location</Form.Label>
-            <Form.Control onChange={this.locationChangeHandler} name="location" type="text" />
+            <Form.Control
+              onChange={this.locationChangeHandler}
+              name="location"
+              type="text"
+            />
           </Form.Group>
           <Form.Group controlId="salary">
             <Form.Label className="labels">Salary</Form.Label>
             <Row>
               <Col>
-                <Form.Control onChange={this.salaryChangeHandler} name="salary" type="number" />
+                <Form.Control
+                  onChange={this.salaryChangeHandler}
+                  name="salary"
+                  type="number"
+                />
               </Col>
               <p> per </p>
               <Col>
-                <Form.Control as="select" onChange={this.salaryTimeChangeHandler} name="salarytime">
-                  <option value="" hidden> </option>
+                <Form.Control
+                  as="select"
+                  onChange={this.salaryTimeChangeHandler}
+                  name="salarytime"
+                >
+                  <option value="" hidden>
+                    {" "}
+                  </option>
                   <option value="day">Day</option>
                   <option value="month">Month</option>
                   <option value="year">Year</option>
@@ -346,8 +449,14 @@ class NewJobPosting extends React.Component {
           </Form.Group>
           <Form.Group controlId="category">
             <Form.Label className="labels">Job Category</Form.Label>
-            <Form.Control as="select" onChange={this.categoryChangeHandler} name="category">
-              <option value="" hidden> </option>
+            <Form.Control
+              as="select"
+              onChange={this.categoryChangeHandler}
+              name="category"
+            >
+              <option value="" hidden>
+                {" "}
+              </option>
               <option value="Full-Time">Full-Time</option>
               <option value="Part-Time">Part-Time</option>
               <option value="Intern">Intern</option>
@@ -356,13 +465,21 @@ class NewJobPosting extends React.Component {
           </Form.Group>
           <Form.Group controlId="Description">
             <Form.Label className="labels">Description</Form.Label>
-            <Form.Control as="textarea" rows="5" onChange={this.descriptionChangeHandler} name="description" type="text" />
+            <Form.Control
+              as="textarea"
+              rows="5"
+              onChange={this.descriptionChangeHandler}
+              name="description"
+              type="text"
+            />
           </Form.Group>
           <p className="errormessage">{this.state.errormessage}</p>
         </Card>
         <Row style={{ paddingBottom: "15px" }}>
           <Col style={{ textAlign: "center" }}>
-            <Button className="save" onClick={this.handlePost}>Post</Button>
+            <Button className="save" onClick={this.handlePost}>
+              Post
+            </Button>
           </Col>
         </Row>
       </Container>
@@ -370,4 +487,11 @@ class NewJobPosting extends React.Component {
   }
 }
 
-export default NewJobPosting;
+export default compose(
+  graphql(getCompanyJobsListQuery, {
+    options: () => ({ variables: { id: localStorage.getItem("id") } }),
+  }),
+  graphql(createCompanyJobPostMutation, {
+    name: "createCompanyJobPostMutation",
+  })
+)(NewJobPosting);

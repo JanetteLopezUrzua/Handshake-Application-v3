@@ -6,7 +6,6 @@ import InputGroup from "react-bootstrap/InputGroup";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Container from "react-bootstrap/Container";
 import { Link } from "react-router-dom";
-import cookie from "react-cookies";
 import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 import hslogo from "../assets/logo.JPG";
