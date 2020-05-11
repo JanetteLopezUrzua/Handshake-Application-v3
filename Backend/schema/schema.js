@@ -190,7 +190,6 @@ const RootQuery = new GraphQLObjectType({
             },
           ],
         });
-
         return studentsList;
       },
     },
@@ -203,6 +202,25 @@ const RootQuery = new GraphQLObjectType({
           companyid: id,
         });
 
+        return jobsList;
+      },
+    },
+    jobsSearch: {
+      type: new GraphQLList(JobType),
+      args: { search: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const { search } = args;
+        let jobsList = await Job.find({
+          $or: [
+            { title: { $regex: ".*" + search + ".*", $options: "i" } },
+            {
+              companyname: {
+                $regex: ".*" + search + ".*",
+                $options: "i",
+              },
+            },
+          ],
+        });
         return jobsList;
       },
     },

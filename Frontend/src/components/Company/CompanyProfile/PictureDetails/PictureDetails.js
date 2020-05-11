@@ -203,7 +203,7 @@ class PictureDetails extends React.Component {
     let data = this.props.data;
     console.log(data);
 
-    let name = null;
+    let name = "";
     let photo = null;
     if (!data.loading) {
       name = this.props.data.company.name;

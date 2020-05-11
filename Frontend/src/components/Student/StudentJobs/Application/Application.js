@@ -14,7 +14,7 @@ class Application extends React.Component {
     super();
 
     this.state = {
-      student_id: cookie.load('id'),
+      student_id: cookie.load("id"),
       job_id: "",
       show: false,
       validfile: "",
@@ -24,10 +24,9 @@ class Application extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps = props => ({ job_id: props.job_id });
+  static getDerivedStateFromProps = (props) => ({ job_id: props.job_id });
 
-
-  resumeHandler = e => {
+  resumeHandler = (e) => {
     e.preventDefault();
     const file = e.target.files[0];
 
@@ -35,12 +34,12 @@ class Application extends React.Component {
     this.getResume(file);
   };
 
-  getResume = file => {
+  getResume = (file) => {
     const data = new FormData();
 
-    if (file && file.type.match('.pdf')) {
-      data.append('file', file);
-      data.append('name', 'file');
+    if (file && file.type.match(".pdf")) {
+      data.append("file", file);
+      data.append("name", "file");
 
       this.setState({
         data,
@@ -50,25 +49,38 @@ class Application extends React.Component {
     } else {
       this.setState({
         validfile: false,
-        errormessage: "File not accepted. Choose a PDF File."
+        errormessage: "File not accepted. Choose a PDF File.",
       });
     }
   };
 
-  onUpload = e => {
+  onUpload = (e) => {
     e.preventDefault();
     if (this.state.validfile === true) {
       axios
-        .post('http://localhost:3001/upload', this.state.data)
-        .then(response => {
+        .post("http://localhost:3001/upload", this.state.data)
+        .then((response) => {
           console.log("res", response.data);
 
           const date = new Date();
-          const day = (`${date.getDate()}`).slice(-2);
-          let month = (`${date.getMonth()}`).slice(-2);
+          const day = `${date.getDate()}`.slice(-2);
+          let month = `${date.getMonth()}`.slice(-2);
           const year = date.getFullYear();
 
-          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+          const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sept",
+            "Oct",
+            "Nov",
+            "Dec",
+          ];
 
           month = months[month];
 
@@ -78,19 +90,19 @@ class Application extends React.Component {
             student_id: this.state.student_id,
             job_id: this.state.job_id,
             file: response.data,
-            appdate: applicationdate
+            appdate: applicationdate,
           };
 
-          return axios.post('http://localhost:3001/resumes', data);
+          return axios.post("http://localhost:3001/resumes", data);
         })
-        .then(response => {
+        .then((response) => {
           console.log(response);
           this.setState({
             errormessage: "",
             show: false,
           });
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error.response.data);
         });
     }
@@ -100,23 +112,35 @@ class Application extends React.Component {
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
       show: false,
-      errormessage: ""
+      errormessage: "",
     });
   };
 
   handleShow = () =>
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
-      show: true
+      show: true,
     });
 
-
   render() {
-    console.log("REEEEEEEEEEEEENDER");
     let button = "";
     if (this.state.alreadyapplied === true) {
-      button = <Button className="cancel" style={{ backgroundColor: "#ccc" }} onClick={this.handleShow} disabled>Applied</Button>;
-    } else button = <Button className="save" onClick={this.handleShow}>Apply</Button>;
+      button = (
+        <Button
+          className="cancel"
+          style={{ backgroundColor: "#ccc" }}
+          onClick={this.handleShow}
+          disabled
+        >
+          Applied
+        </Button>
+      );
+    } else
+      button = (
+        <Button className="save" onClick={this.handleShow}>
+          Apply
+        </Button>
+      );
 
     return (
       <div>

@@ -1,20 +1,19 @@
-import React from 'react';
+import React from "react";
 // import cookie from 'react-cookies';
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import Image from "react-bootstrap/Image";
-import Container from 'react-bootstrap/Container';
-
+import Container from "react-bootstrap/Container";
 
 const JobsListDisplay = (props) => {
   let img = "";
-  if (props.job.photo === "" || props.job.photo === null) {
+  if (props.job.companyphoto === "" || props.job.companyphoto === null) {
     img = (
       <div>
         <div className="eventslistpics">
-          <p>{props.job.company_name.charAt(0)}</p>
+          <p>{props.job.companyname.charAt(0)}</p>
         </div>
       </div>
     );
@@ -22,22 +21,29 @@ const JobsListDisplay = (props) => {
     img = (
       <Image
         className="eventslistpics"
-        src={`http://localhost:3001/resumesandimages/${props.job.photo}`}
+        src={`http://localhost:3001/resumesandimages/${props.job.companyphoto}`}
       />
     );
   }
 
   return (
-    <Container style={{ padding: "10px" }} onClick={(e) => props.changeJob(e, props.job)}>
+    <Container
+      style={{ padding: "10px" }}
+      onClick={(e) => props.changeJob(e, props.job)}
+    >
       <Link style={{ color: "black" }} to="###">
         <Row>
-          <Col sm={3}>
-            {img}
-          </Col>
+          <Col sm={3}>{img}</Col>
           <Col sm={9}>
-            <Card.Title className="studentslistname">{props.job.title}</Card.Title>
-            <Card.Title className="studentslistcollege">{props.job.company_name} - {props.job.location}</Card.Title>
-            <Card.Title className="studentslistinfo">{props.job.category}</Card.Title>
+            <Card.Title className="studentslistname">
+              {props.job.title}
+            </Card.Title>
+            <Card.Title className="studentslistcollege">
+              {props.job.companyname} - {props.job.location}
+            </Card.Title>
+            <Card.Title className="studentslistinfo">
+              {props.job.category}
+            </Card.Title>
           </Col>
         </Row>
       </Link>

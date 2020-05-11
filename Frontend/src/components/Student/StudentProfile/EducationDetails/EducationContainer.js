@@ -4,7 +4,6 @@ import axios from "axios";
 import DisplayEducation from "./DisplayEducation";
 import EditEducation from "./EditEducation";
 
-
 class EducationContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -16,7 +15,7 @@ class EducationContainer extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   handleClick = (e) => {
     e.preventDefault();
@@ -24,7 +23,7 @@ class EducationContainer extends React.Component {
     this.setState({ editWasTriggered: true });
   };
 
-  schoolNameChangeHandler = e => {
+  schoolNameChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.schoolname = e.target.value;
     this.setState({
@@ -32,7 +31,7 @@ class EducationContainer extends React.Component {
     });
   };
 
-  locationChangeHandler = e => {
+  locationChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.location = e.target.value;
     this.setState({
@@ -40,7 +39,7 @@ class EducationContainer extends React.Component {
     });
   };
 
-  degreeChangeHandler = e => {
+  degreeChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.degree = e.target.value;
     this.setState({
@@ -48,7 +47,7 @@ class EducationContainer extends React.Component {
     });
   };
 
-  majorChangeHandler = e => {
+  majorChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.major = e.target.value;
     this.setState({
@@ -56,7 +55,7 @@ class EducationContainer extends React.Component {
     });
   };
 
-  passingMonthChangeHandler = e => {
+  passingMonthChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.passingmonth = e.target.value;
     this.setState({
@@ -64,7 +63,7 @@ class EducationContainer extends React.Component {
     });
   };
 
-  passingYearChangeHandler = e => {
+  passingYearChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.passingyear = e.target.value;
     this.setState({
@@ -72,7 +71,7 @@ class EducationContainer extends React.Component {
     });
   };
 
-  gpaChangeHandler = e => {
+  gpaChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.gpa = e.target.value;
     this.setState({
@@ -93,17 +92,17 @@ class EducationContainer extends React.Component {
       passingmonth: this.state.school.passingmonth,
       passingyear: this.state.school.passingyear,
       gpa: this.state.school.gpa,
-
     };
 
-    axios.post("http://localhost:3001/student/educationinfo", data)
-      .then(response => {
+    axios
+      .post("http://localhost:3001/student/educationinfo", data)
+      .then((response) => {
         console.log(response);
         this.setState({
-          editWasTriggered: false
+          editWasTriggered: false,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
         this.setState({
           school: "",
@@ -114,7 +113,7 @@ class EducationContainer extends React.Component {
   handleCancel = () => {
     this.setState({
       school: this.props.school,
-      editWasTriggered: false
+      editWasTriggered: false,
     });
   };
 
@@ -127,7 +126,6 @@ class EducationContainer extends React.Component {
   };
 
   render() {
-    console.log("render2");
     let display = "";
     display = (
       <DisplayEducation

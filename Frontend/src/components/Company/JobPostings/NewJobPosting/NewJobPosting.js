@@ -115,8 +115,6 @@ class NewJobPosting extends React.Component {
       category,
     } = this.state;
 
-    console.log("FFUCCKKKKKKK", this.state);
-
     let err = "";
 
     const wspatt = new RegExp("^ *$");

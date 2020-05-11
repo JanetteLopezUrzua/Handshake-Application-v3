@@ -4,11 +4,10 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import cookie from 'react-cookies';
+import cookie from "react-cookies";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import EducationContainer from "./EducationContainer";
 import NewFormEducation from "./NewFormEducation";
-
 
 class EducationDetails extends React.Component {
   constructor() {
@@ -29,28 +28,33 @@ class EducationDetails extends React.Component {
         passingyear: "",
         gpa: "",
       },
-      errormessages: {}
+      errormessages: {},
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   componentDidMount() {
     this.getInfo();
   }
 
   getInfo = () => {
-    axios.get(`http://localhost:3001/student/educationinfo/${this.state.id}`)
-      .then(response => {
+    axios
+      .get(`http://localhost:3001/student/educationinfo/${this.state.id}`)
+      .then((response) => {
         const info = response.data;
 
         this.setState({
           schools: info.schools,
         });
 
-        if (this.state.schools === undefined || this.state.schools.length === 0) {
+        if (
+          this.state.schools === undefined ||
+          this.state.schools.length === 0
+        ) {
           this.setState({
-            message: "Where is somewhere you have studied? - Add your current school here so you can be found on the students list.",
+            message:
+              "Where is somewhere you have studied? - Add your current school here so you can be found on the students list.",
           });
         } else {
           this.setState({
@@ -58,20 +62,20 @@ class EducationDetails extends React.Component {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
 
-  addSchool=(e) => {
+  addSchool = (e) => {
     e.preventDefault();
 
     this.setState({
       newform: true,
     });
-  }
+  };
 
-  schoolNameChangeHandler = e => {
+  schoolNameChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.schoolname = e.target.value;
     this.setState({
@@ -79,7 +83,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  locationChangeHandler = e => {
+  locationChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.location = e.target.value;
     this.setState({
@@ -87,7 +91,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  degreeChangeHandler = e => {
+  degreeChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.degree = e.target.value;
     this.setState({
@@ -95,7 +99,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  majorChangeHandler = e => {
+  majorChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.major = e.target.value;
     this.setState({
@@ -103,7 +107,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  passingMonthChangeHandler = e => {
+  passingMonthChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.passingmonth = e.target.value;
     this.setState({
@@ -111,7 +115,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  passingYearChangeHandler = e => {
+  passingYearChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.passingyear = e.target.value;
     this.setState({
@@ -119,7 +123,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  gpaChangeHandler = e => {
+  gpaChangeHandler = (e) => {
     const school = { ...this.state.school };
     school.gpa = e.target.value;
     this.setState({
@@ -129,35 +133,66 @@ class EducationDetails extends React.Component {
 
   handleSave = (e) => {
     e.preventDefault();
-    console.log(this.state.school);
     const wspatt = new RegExp("^ *$");
-    if (this.state.school.schoolname === "" || wspatt.test(this.state.school.schoolname) || this.state.school.schoolname === undefined) {
+    if (
+      this.state.school.schoolname === "" ||
+      wspatt.test(this.state.school.schoolname) ||
+      this.state.school.schoolname === undefined
+    ) {
       this.setState({
         errormessages: {
-          schoolnameerror: "School name must be entered."
-        }
+          schoolnameerror: "School name must be entered.",
+        },
       });
-    } else if (this.state.school.degree === "" || wspatt.test(this.state.school.degree) || this.state.school.degree === undefined) {
+    } else if (
+      this.state.school.degree === "" ||
+      wspatt.test(this.state.school.degree) ||
+      this.state.school.degree === undefined
+    ) {
       this.setState({
         errormessages: {
-          degreeerror: "Degree must be selected."
-        }
+          degreeerror: "Degree must be selected.",
+        },
       });
-    } else if ((this.state.school.passingmonth === "" || wspatt.test(this.state.school.passingmonth) || this.state.school.passingmonth === undefined) || (this.state.school.passingyear === 0 || this.state.school.passingyear === "" || wspatt.test(this.state.school.passingyear) || this.state.school.passingyear === undefined)) {
+    } else if (
+      this.state.school.passingmonth === "" ||
+      wspatt.test(this.state.school.passingmonth) ||
+      this.state.school.passingmonth === undefined ||
+      this.state.school.passingyear === 0 ||
+      this.state.school.passingyear === "" ||
+      wspatt.test(this.state.school.passingyear) ||
+      this.state.school.passingyear === undefined
+    ) {
       this.setState({
         errormessages: {
-          passingdateerror: "Complete end date must be selected."
-        }
+          passingdateerror: "Complete end date must be selected.",
+        },
       });
     } else {
-      const name = (this.state.school.schoolname === undefined) ? null : this.state.school.schoolname;
-      const loc = (this.state.school.location === undefined) ? null : this.state.school.location;
-      const deg = (this.state.school.degree === undefined) ? null : this.state.school.degree;
-      const maj = (this.state.school.major === undefined) ? null : this.state.school.major;
-      const pm = (this.state.school.passingmonth === undefined) ? null : this.state.school.passingmonth;
-      const py = (this.state.school.passingyear === undefined) ? null : this.state.school.passingyear;
-      const gpascore = (this.state.school.gpa === undefined) ? null : this.state.school.gpa;
-
+      const name =
+        this.state.school.schoolname === undefined
+          ? null
+          : this.state.school.schoolname;
+      const loc =
+        this.state.school.location === undefined
+          ? null
+          : this.state.school.location;
+      const deg =
+        this.state.school.degree === undefined
+          ? null
+          : this.state.school.degree;
+      const maj =
+        this.state.school.major === undefined ? null : this.state.school.major;
+      const pm =
+        this.state.school.passingmonth === undefined
+          ? null
+          : this.state.school.passingmonth;
+      const py =
+        this.state.school.passingyear === undefined
+          ? null
+          : this.state.school.passingyear;
+      const gpascore =
+        this.state.school.gpa === undefined ? null : this.state.school.gpa;
 
       const data = {
         id: this.state.id,
@@ -181,8 +216,9 @@ class EducationDetails extends React.Component {
         gpa: gpascore,
       };
 
-      axios.post("http://localhost:3001/student/educationinfo/newform", data)
-        .then(response => {
+      axios
+        .post("http://localhost:3001/student/educationinfo/newform", data)
+        .then((response) => {
           console.log(response);
           this.setState({
             schools: [...this.state.schools, school],
@@ -200,16 +236,16 @@ class EducationDetails extends React.Component {
               degreeerror: "",
               passingdateerror: "",
             },
-            newform: false
+            newform: false,
           });
 
           this.getInfo();
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
           this.setState({
             errormessages: {
-              schoolnameerror: error.response.data
+              schoolnameerror: error.response.data,
             },
           });
         });
@@ -232,28 +268,38 @@ class EducationDetails extends React.Component {
         schoolnameerror: "",
         degreeerror: "",
         passingdateerror: "",
-      }
+      },
     });
   };
 
   handleDelete = (schoolname, degree) => {
-    axios.delete("http://localhost:3001/student/educationinfo/delete", { data: { id: this.state.id, schoolname, degree } })
-      .then(response => {
+    axios
+      .delete("http://localhost:3001/student/educationinfo/delete", {
+        data: { id: this.state.id, schoolname, degree },
+      })
+      .then((response) => {
         console.log(response);
         this.getInfo();
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
-  }
+  };
 
   render() {
-    // console.log("RENDERRRRR");
     let schoolsList = "";
     let newschoolform = "";
 
-    if (this.state.schools === undefined || this.state.schools.length === 0) schoolsList = "";
-    else schoolsList = this.state.schools.map((school) => <EducationContainer id={this.state.id} school={school} delete={this.handleDelete} />);
+    if (this.state.schools === undefined || this.state.schools.length === 0)
+      schoolsList = "";
+    else
+      schoolsList = this.state.schools.map((school) => (
+        <EducationContainer
+          id={this.state.id}
+          school={school}
+          delete={this.handleDelete}
+        />
+      ));
 
     if (this.state.newform === false) newschoolform = "";
     else {
@@ -275,15 +321,27 @@ class EducationDetails extends React.Component {
     }
 
     let button = "";
-    if (cookie.load('id') === this.state.id && cookie.load('user') === "student") {
-      button = <Button onClick={this.addSchool} className="BottomAddButton">Add School</Button>;
+    if (
+      cookie.load("id") === this.state.id &&
+      cookie.load("user") === "student"
+    ) {
+      button = (
+        <Button onClick={this.addSchool} className="BottomAddButton">
+          Add School
+        </Button>
+      );
     } else button = "";
 
     return (
       <Card style={{ padding: "0" }}>
-        <Card.Title style={{ paddingLeft: "24px", paddingTop: "24px" }}>Education</Card.Title>
-        <Form.Label style={{ color: "blue", padding: "0 24px" }}>{this.state.message}</Form.Label>
-        <Container style={{ maxHeight: "800px", overflowY: "scroll" }}>{schoolsList}
+        <Card.Title style={{ paddingLeft: "24px", paddingTop: "24px" }}>
+          Education
+        </Card.Title>
+        <Form.Label style={{ color: "blue", padding: "0 24px" }}>
+          {this.state.message}
+        </Form.Label>
+        <Container style={{ maxHeight: "800px", overflowY: "scroll" }}>
+          {schoolsList}
           {newschoolform}
         </Container>
         <NavDropdown.Divider style={{ margin: "0" }}></NavDropdown.Divider>
