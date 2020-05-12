@@ -1,8 +1,4 @@
 import React from "react";
-import axios from "axios";
-// import cookie from "react-cookies";
-// import { FaPlus, FaMinus } from 'react-icons/fa';
-// import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import JobApplicationsModal from "./JobApplicationsModal";
 import { graphql } from "react-apollo";
@@ -15,36 +11,16 @@ class JobApplications extends React.Component {
     this.state = {
       job_id: "",
       show: false,
-      students: [],
     };
   }
 
   static getDerivedStateFromProps = (props) => ({ job_id: props.job_id });
-
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios
-      .get(`http://localhost:3001/job/applied/${this.state.job_id}`)
-      .then((response) => {
-        const info = response.data;
-        this.setState({
-          students: info.students,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
 
   handleClose = () => {
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
       show: false,
     });
-    this.getInfo();
   };
 
   handleShow = () => {
@@ -54,30 +30,21 @@ class JobApplications extends React.Component {
     });
   };
 
-  // eslint-disable-next-line camelcase
-  handleStatus = (e, pstudent_id) => {
-    const data = {
-      student_id: pstudent_id,
-      job_id: this.state.job_id,
-      status: e.target.value,
-    };
-
-    console.log(e.target.value);
-
-    axios
-      .post("http://localhost:3001/job/studentstatus", data)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   render() {
+    let data = this.props.data;
+    console.log(data);
+
+    let applicants = [];
+
+    if (!data.loading) {
+      applicants = data.job.applicants;
+    }
+
+    console.log("GGGGGGGGGGGG", data.job);
+
     let message = "";
     let button = "";
-    if (this.state.students.length === 0) {
+    if (applicants.length === 0) {
       message = "No one has applied to this job.";
       button = (
         <Button style={{ cursor: "not-allowed" }} disabled>
@@ -94,7 +61,7 @@ class JobApplications extends React.Component {
         <JobApplicationsModal
           show={this.state.show}
           close={this.handleClose}
-          students={this.state.students}
+          students={applicants}
           handleStatus={this.handleStatus}
         />
         {button}
@@ -106,5 +73,5 @@ class JobApplications extends React.Component {
 }
 
 export default graphql(getCompanyJobQuery, {
-  options: (props) => ({ variables: { id: props.match.params.job_id } }),
+  options: (props) => ({ variables: { id: props.job_id } }),
 })(JobApplications);
