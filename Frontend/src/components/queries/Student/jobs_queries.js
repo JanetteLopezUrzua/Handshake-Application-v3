@@ -31,4 +31,29 @@ const getStudentJobsListQuery = gql`
   }
 `;
 
-export { getStudentJobsListQuery };
+const getStudentApplicationQuery = gql`
+  query($id: ID) {
+    applications(id: $id) {
+      _id
+      title
+      deadlinemonth
+      deadlineday
+      deadlineyear
+      deadlinetime
+      deadlinedaytime
+      location
+      salary
+      salarytime
+      description
+      category
+      postingmonth
+      postingday
+      postingyear
+      companyid
+      companyname
+      companyphoto
+    }
+  }
+`;
+
+export { getStudentJobsListQuery, getStudentApplicationQuery };

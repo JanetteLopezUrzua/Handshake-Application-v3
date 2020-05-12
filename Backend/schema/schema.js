@@ -2,6 +2,7 @@ const graphql = require("graphql");
 const Company = require("../models/Company/Companies");
 const Student = require("../models/Student/Students");
 const Job = require("../models/Job/Jobs");
+const mongoose = require("mongoose");
 
 const { companySignUp, companyLogIn } = require("../mutations/Company/auth");
 const {
@@ -250,6 +251,17 @@ const RootQuery = new GraphQLObjectType({
         let job = await Job.findById(id);
 
         return job;
+      },
+    },
+    applications: {
+      type: new GraphQLList(JobType),
+      args: { id: { type: GraphQLID } },
+      async resolve(parent, args) {
+        const { id } = args;
+        let jobsList = await Job.find({
+          "applicants.studentid": new mongoose.Types.ObjectId(id),
+        });
+        return jobsList;
       },
     },
   },

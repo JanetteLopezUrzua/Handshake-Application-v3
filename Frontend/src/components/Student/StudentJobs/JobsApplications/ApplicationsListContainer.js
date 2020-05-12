@@ -8,12 +8,15 @@ import Image from "react-bootstrap/Image";
 const EventListContainer = (props) => {
   let img = "";
 
-  if (props.application.photo === "" || props.application.photo === null) {
+  if (
+    props.application.companyphoto === "" ||
+    props.application.companyphoto === null
+  ) {
     img = (
       <div style={{ paddingLeft: "40px" }}>
         <div className="eventslistpics">
           <p style={{ paddingTop: "10px" }}>
-            {props.application.name.charAt(0)}
+            {props.application.companyname.charAt(0)}
           </p>
         </div>
       </div>
@@ -22,7 +25,7 @@ const EventListContainer = (props) => {
     img = (
       <Image
         className="eventslistpics"
-        src={`http://localhost:3001/resumesandimages/${props.application.photo}`}
+        src={`http://localhost:3001/resumesandimages/${props.application.companyphoto}`}
       />
     );
   }
@@ -44,7 +47,7 @@ const EventListContainer = (props) => {
             className="studentslistcollege"
             style={{ textTransform: "none" }}
           >
-            {props.application.name}
+            {props.application.companyname}
           </Card.Title>
         </Col>
       </Row>
