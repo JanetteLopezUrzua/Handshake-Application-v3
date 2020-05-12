@@ -4,8 +4,6 @@ const mongoose = require("mongoose");
 
 const studentApplyToJob = async (args) => {
   let { jobid, studentid } = args;
-  console.log("FFFFFFFFFFFFFFFFFFFF", jobid);
-  console.log("FFFFFFFFFFFFFFFFFFFF2", studentid);
 
   let student = await Student.findById({
     _id: new mongoose.Types.ObjectId(studentid),

@@ -40,8 +40,6 @@ class JobApplications extends React.Component {
       applicants = data.job.applicants;
     }
 
-    console.log("GGGGGGGGGGGG", data.job);
-
     let message = "";
     let button = "";
     if (applicants.length === 0) {

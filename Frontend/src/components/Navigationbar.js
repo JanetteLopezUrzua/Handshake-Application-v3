@@ -7,8 +7,10 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import Container from "react-bootstrap/Container";
 import { Link } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
-import axios from "axios";
 import hslogo from "../assets/logo.JPG";
+import { graphql, compose } from "react-apollo";
+import { getCompanyPictureInfoQuery } from "../components/queries/Company/auth_and_profile_queries";
+import { getStudentPictureInfoQuery } from "../components/queries/Student/auth_and_profile_queries";
 
 class Navigationbar extends React.Component {
   constructor(props) {
@@ -25,77 +27,6 @@ class Navigationbar extends React.Component {
     };
   }
 
-  componentDidMount() {
-    if (localStorage.getItem("type") === "Student") this.getStudentImage();
-    if (localStorage.getItem("type") === "Company") this.getCompanyImage();
-  }
-
-  getStudentImage() {
-    axios
-      .get(`http://localhost:3001/student/navbar/${this.state.id}`)
-      .then((response) => {
-        const info = response.data;
-
-        const fn = info.fname.charAt(0);
-        const ln = info.lname.charAt(0);
-
-        console.log(response.data);
-        this.setState({
-          photo: info.photo,
-          firstnameletter: fn,
-          lastnameletter: ln,
-        });
-
-        if (this.state.photo === "" || this.state.photo === null) {
-          this.setState({
-            has_image: false,
-          });
-        } else {
-          this.setState({
-            has_image: true,
-          });
-        }
-
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.response.data);
-      });
-  }
-
-  getCompanyImage() {
-    axios
-      .get(`http://localhost:3001/company/navbar/${this.state.id}`)
-      .then((response) => {
-        const info = response.data;
-
-        const cn = info.name.charAt(0);
-
-        console.log(response.data);
-        this.setState({
-          photo: info.photo,
-          nameletter: cn,
-        });
-
-        if (this.state.photo === "" || this.state.photo === null) {
-          this.setState({
-            has_image: false,
-          });
-        } else {
-          this.setState({
-            has_image: true,
-          });
-        }
-
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.response.data);
-      });
-  }
-
   // handle logout by removing items in localstorage
   handleLogout = () => {
     localStorage.removeItem("id", { path: "/" });
@@ -103,15 +34,41 @@ class Navigationbar extends React.Component {
   };
 
   render() {
+    let data = this.props.getCompanyPictureInfoQuery;
+    console.log(data);
+
+    let name = "";
+    let photo = null;
+
+    console.log(
+      "VVVVVVVVVVVVVVVVVVVVVVVVVVVvv",
+      this.props.getCompanyPictureInfoQuery
+    );
+    if (!data.loading) {
+      if (localStorage.getItem("type") === "Company") {
+        name = this.props.getCompanyPictureInfoQuery.company.name;
+        photo = this.props.getCompanyPictureInfoQuery.company.photo;
+      } else {
+        name =
+          this.props.getStudentPictureInfoQuery.student.fname.charAt(0) +
+          this.props.getStudentPictureInfoQuery.student.lname.charAt(0);
+        photo = this.props.getStudentPictureInfoQuery.student.photo;
+      }
+    }
+
+    let has_image = null;
+    if (photo === null) has_image = false;
+    else has_image = true;
+
     let img = "";
 
     if (localStorage.getItem("type") === "Student") {
-      if (this.state.has_image === true) {
+      if (has_image === true) {
         img = (
           <Container>
             <img
               className="navbarpic"
-              src={`http://localhost:3001/resumesandimages/${this.state.photo}`}
+              src={`http://localhost:3001/resumesandimages/${photo}`}
               alt="user profile pic"
               roundedcircle="true"
             />
@@ -120,22 +77,19 @@ class Navigationbar extends React.Component {
       } else {
         img = (
           <div>
-            <p className="navbarpic">
-              {this.state.firstnameletter}
-              {this.state.lastnameletter}
-            </p>
+            <p className="navbarpic">{name}</p>
           </div>
         );
       }
     }
 
     if (localStorage.getItem("type") === "Company") {
-      if (this.state.has_image === true) {
+      if (has_image === true) {
         img = (
           <Container>
             <img
               className="navbarpic"
-              src={`http://localhost:3001/resumesandimages/${this.state.photo}`}
+              src={`http://localhost:3001/resumesandimages/${photo}`}
               alt="user profile pic"
               roundedcircle="true"
             />
@@ -144,7 +98,7 @@ class Navigationbar extends React.Component {
       } else {
         img = (
           <div>
-            <p className="navbarpic">{this.state.nameletter}</p>
+            <p className="navbarpic">{name.charAt(0)}</p>
           </div>
         );
       }
@@ -217,4 +171,13 @@ class Navigationbar extends React.Component {
   }
 }
 
-export default Navigationbar;
+export default compose(
+  graphql(getCompanyPictureInfoQuery, {
+    name: "getCompanyPictureInfoQuery",
+    options: () => ({ variables: { id: localStorage.getItem("id") } }),
+  }),
+  graphql(getStudentPictureInfoQuery, {
+    name: "getStudentPictureInfoQuery",
+    options: () => ({ variables: { id: localStorage.getItem("id") } }),
+  })
+)(Navigationbar);
