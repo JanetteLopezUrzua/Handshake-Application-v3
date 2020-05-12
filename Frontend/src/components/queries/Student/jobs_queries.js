@@ -21,6 +21,12 @@ const getStudentJobsListQuery = gql`
       companyid
       companyname
       companyphoto
+      applicants {
+        studentid
+        studentfname
+        studentlname
+        studentphoto
+      }
     }
   }
 `;

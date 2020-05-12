@@ -71,6 +71,27 @@ const JobsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    applicants: [
+      {
+        studentid: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "students",
+          required: true,
+        },
+        studentfname: {
+          type: String,
+          required: true,
+        },
+        studentlname: {
+          type: String,
+          required: true,
+        },
+        studentphoto: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   {
     versionKey: false,

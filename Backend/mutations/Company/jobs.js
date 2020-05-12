@@ -1,5 +1,4 @@
 const Job = require("../../models/Job/Jobs");
-const Applications = require("../../models/Job/Applications");
 const Company = require("../../models/Company/Companies");
 const mongoose = require("mongoose");
 
@@ -54,10 +53,6 @@ const companyDeleteJob = async (args) => {
 
   let job = await Job.deleteOne({
     _id: mongoose.Types.ObjectId(id),
-  });
-
-  await Applications.deleteMany({
-    jobid: mongoose.Types.ObjectId(id),
   });
 
   return job;

@@ -23,6 +23,7 @@ const {
   companyNewJob,
   companyDeleteJob,
 } = require("../mutations/Company/jobs");
+const { studentApplyToJob } = require("../mutations/Student/jobs");
 
 const {
   GraphQLObjectType,
@@ -142,6 +143,23 @@ const JobType = new GraphQLObjectType({
     companyid: { type: GraphQLID },
     companyname: { type: GraphQLString },
     companyphoto: { type: GraphQLString },
+    applicants: {
+      type: new GraphQLList(ApplicantType),
+      resolve(parent, args) {
+        return parent.applicants;
+      },
+    },
+  }),
+});
+
+const ApplicantType = new GraphQLObjectType({
+  name: "Applicant",
+  fields: () => ({
+    _id: { type: GraphQLID },
+    studentid: { type: GraphQLID },
+    studentfname: { type: GraphQLString },
+    studentlname: { type: GraphQLString },
+    studentphoto: { type: GraphQLString },
   }),
 });
 
@@ -421,6 +439,16 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return studentUpdateContactInfo(args);
+      },
+    },
+    applyToJob: {
+      type: JobType,
+      args: {
+        jobid: { type: GraphQLID },
+        studentid: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return studentApplyToJob(args);
       },
     },
   },

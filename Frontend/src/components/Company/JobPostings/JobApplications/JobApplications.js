@@ -5,6 +5,8 @@ import axios from "axios";
 // import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import JobApplicationsModal from "./JobApplicationsModal";
+import { graphql } from "react-apollo";
+import { getCompanyJobQuery } from "../../../queries/Company/jobs_queries";
 
 class JobApplications extends React.Component {
   constructor() {
@@ -17,24 +19,25 @@ class JobApplications extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ job_id: props.job_id })
+  static getDerivedStateFromProps = (props) => ({ job_id: props.job_id });
 
   componentDidMount() {
     this.getInfo();
   }
 
   getInfo = () => {
-    axios.get(`http://localhost:3001/job/applied/${this.state.job_id}`)
-      .then(response => {
+    axios
+      .get(`http://localhost:3001/job/applied/${this.state.job_id}`)
+      .then((response) => {
         const info = response.data;
         this.setState({
           students: info.students,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
-  }
+  };
 
   handleClose = () => {
     // eslint-disable-next-line implicit-arrow-linebreak
@@ -47,7 +50,7 @@ class JobApplications extends React.Component {
   handleShow = () => {
     // eslint-disable-next-line implicit-arrow-linebreak
     this.setState({
-      show: true
+      show: true,
     });
   };
 
@@ -59,14 +62,14 @@ class JobApplications extends React.Component {
       status: e.target.value,
     };
 
-
     console.log(e.target.value);
 
-    axios.post("http://localhost:3001/job/studentstatus", data)
-      .then(response => {
+    axios
+      .post("http://localhost:3001/job/studentstatus", data)
+      .then((response) => {
         console.log(response);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
@@ -77,13 +80,13 @@ class JobApplications extends React.Component {
     if (this.state.students.length === 0) {
       message = "No one has applied to this job.";
       button = (
-        <Button style={{ cursor: "not-allowed" }} disabled>View Applications</Button>
+        <Button style={{ cursor: "not-allowed" }} disabled>
+          View Applications
+        </Button>
       );
     } else {
       message = "";
-      button = (
-        <Button onClick={this.handleShow}>View Applications</Button>
-      );
+      button = <Button onClick={this.handleShow}>View Applications</Button>;
     }
 
     return (
@@ -94,11 +97,14 @@ class JobApplications extends React.Component {
           students={this.state.students}
           handleStatus={this.handleStatus}
         />
-        {button}<br />
+        {button}
+        <br />
         <p className="errormessage">{message}</p>
       </div>
     );
   }
 }
 
-export default JobApplications;
+export default graphql(getCompanyJobQuery, {
+  options: (props) => ({ variables: { id: props.match.params.job_id } }),
+})(JobApplications);
