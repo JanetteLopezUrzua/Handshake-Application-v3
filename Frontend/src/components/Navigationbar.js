@@ -40,10 +40,6 @@ class Navigationbar extends React.Component {
     let name = "";
     let photo = null;
 
-    console.log(
-      "VVVVVVVVVVVVVVVVVVVVVVVVVVVvv",
-      this.props.getCompanyPictureInfoQuery
-    );
     if (!data.loading) {
       if (localStorage.getItem("type") === "Company") {
         name = this.props.getCompanyPictureInfoQuery.company.name;
