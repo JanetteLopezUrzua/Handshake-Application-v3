@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -6,44 +6,73 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 
 const NewFormWork = (props) => (
-  <Container style={{
-    paddingRight: '0', paddingLeft: '10px', marginBottom: '30px', cursor: 'pointer'
-  }}
+  <Container
+    style={{
+      paddingRight: "0",
+      paddingLeft: "10px",
+      marginBottom: "30px",
+      cursor: "pointer",
+    }}
   >
     <Form.Label className="labels">Add New Work Experience</Form.Label>
     <Form.Group controlId="Companyname">
       <Form.Label className="labels">Company Name</Form.Label>
-      <Form.Control onChange={props.companynamechange} name="name" type="text" placeholder={props.job.companyname} />
+      <Form.Control
+        onChange={props.companynamechange}
+        name="name"
+        type="text"
+        placeholder={props.job.companyname}
+      />
       <p className="errormessage">{props.errormessages.companynameerror}</p>
     </Form.Group>
     <Form.Group controlId="title">
       <Form.Label className="labels">Job Title</Form.Label>
-      <Form.Control onChange={props.titlechange} name="title" type="text" placeholder={props.job.title} />
+      <Form.Control
+        onChange={props.titlechange}
+        name="title"
+        type="text"
+        placeholder={props.job.title}
+      />
       <p className="errormessage">{props.errormessages.titleerror}</p>
     </Form.Group>
     <Form.Group controlId="startdatemonth">
       <Form.Label className="labels">Start Date</Form.Label>
       <Row>
         <Col>
-          <Form.Control as="select" onChange={props.startdatemonthchange} name="month" type="text" placeholder={props.job.startdatemonth}>
-            <option value="" hidden>{props.job.startdatemonth}</option>
-            <option value="January">January</option>
-            <option value="February">February</option>
-            <option value="March">March</option>
-            <option value="April">April</option>
-            <option value="May">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
+          <Form.Control
+            as="select"
+            onChange={props.startdatemonthchange}
+            name="month"
+            type="text"
+            placeholder={props.job.startdatemonth}
+          >
+            <option value="" hidden>
+              {props.job.startdatemonth}
+            </option>
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
           </Form.Control>
         </Col>
         <Col>
-          <Form.Control as="select" onChange={props.startdateyearchange} name="year" type="number">
-            <option value="" hidden>{props.job.startdateyear}</option>
+          <Form.Control
+            as="select"
+            onChange={props.startdateyearchange}
+            name="year"
+            type="number"
+          >
+            <option value="" hidden>
+              {props.job.startdateyear}
+            </option>
             <option value="2020">2020</option>
             <option value="2019">2019</option>
             <option value="2018">2018</option>
@@ -114,25 +143,40 @@ const NewFormWork = (props) => (
       <Form.Label className="labels">End Date</Form.Label>
       <Row>
         <Col>
-          <Form.Control as="select" onChange={props.enddatemonthchange} name="month" type="text" placeholder={props.job.enddatemonth}>
-            <option value="" hidden>{props.job.enddatemonth}</option>
-            <option value="January">January</option>
-            <option value="February">February</option>
-            <option value="March">March</option>
-            <option value="April">April</option>
-            <option value="May">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
+          <Form.Control
+            as="select"
+            onChange={props.enddatemonthchange}
+            name="month"
+            type="text"
+            placeholder={props.job.enddatemonth}
+          >
+            <option value="" hidden>
+              {props.job.enddatemonth}
+            </option>
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
           </Form.Control>
         </Col>
         <Col>
-          <Form.Control as="select" onChange={props.enddateyearchange} name="year" type="number">
-            <option value="" hidden>{props.job.enddateyear}</option>
+          <Form.Control
+            as="select"
+            onChange={props.enddateyearchange}
+            name="year"
+            type="number"
+          >
+            <option value="" hidden>
+              {props.job.enddateyear}
+            </option>
             <option value="2020">2020</option>
             <option value="2019">2019</option>
             <option value="2018">2018</option>
@@ -202,12 +246,23 @@ const NewFormWork = (props) => (
     </Form.Group>
     <Form.Group controlId="description">
       <Form.Label className="labels">Description</Form.Label>
-      <Form.Control as="textarea" rows="3" onChange={props.descriptionchange} name="description" type="text" placeholder={props.job.description} />
+      <Form.Control
+        as="textarea"
+        rows="3"
+        onChange={props.descriptionchange}
+        name="description"
+        type="text"
+        placeholder={props.job.description}
+      />
     </Form.Group>
     <Row>
       <Col style={{ textAlign: "right" }}>
-        <Button className="cancel" onClick={props.cancel}>Cancel</Button>
-        <Button className="save" onClick={props.save}>Save</Button>
+        <Button className="cancel" onClick={props.cancel}>
+          Cancel
+        </Button>
+        <Button className="save" onClick={props.save}>
+          Save
+        </Button>
       </Col>
     </Row>
   </Container>

@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
@@ -7,6 +6,9 @@ import Form from "react-bootstrap/Form";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import WorkContainer from "./WorkContainer";
 import NewFormWork from "./NewFormWork";
+import { graphql, compose } from "react-apollo";
+import { getStudentJobsInfoQuery } from "../../../queries/Student/auth_and_profile_queries";
+import { addStudentWorkInfoMutation } from "../../../mutation/Student/auth_and_profile_mutations";
 
 class WorkDetails extends React.Component {
   constructor() {
@@ -31,35 +33,6 @@ class WorkDetails extends React.Component {
   }
 
   static getDerivedStateFromProps = (props) => ({ id: props.id });
-
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios
-      .get(`http://localhost:3001/student/workinfo/${this.state.id}`)
-      .then((response) => {
-        const info = response.data;
-
-        this.setState({
-          jobs: info.jobs,
-        });
-
-        if (this.state.jobs === undefined || this.state.jobs.length === 0) {
-          this.setState({
-            message: "Where is somewhere you have worked?",
-          });
-        } else {
-          this.setState({
-            message: "",
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
 
   addWork = (e) => {
     e.preventDefault();
@@ -125,7 +98,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
 
     const wspatt = new RegExp("^ *$");
@@ -209,17 +182,6 @@ class WorkDetails extends React.Component {
           ? null
           : this.state.job.description;
 
-      const data = {
-        id: this.state.id,
-        companyname: name,
-        title: ti,
-        startdatemonth: sdm,
-        startdateyear: sdy,
-        enddatemonth: edm,
-        enddateyear: edy,
-        description: des,
-      };
-
       const job = {
         companyname: name,
         title: ti,
@@ -230,33 +192,43 @@ class WorkDetails extends React.Component {
         description: des,
       };
 
-      axios
-        .post("http://localhost:3001/student/workinfo/newform", data)
-        .then((response) => {
-          console.log(response);
-          this.setState({
-            jobs: [...this.state.jobs, job],
-            job: {
-              companyname: "",
-              title: "",
-              startdatemonth: "",
-              startdateyear: "",
-              enddatemonth: "",
-              enddateyear: "",
-              description: "",
+      try {
+        await this.props.addStudentWorkInfoMutation({
+          variables: {
+            id: this.state.id,
+            companyname: name,
+            title: ti,
+            startdatemonth: parseInt(sdm),
+            startdateyear: parseInt(sdy),
+            enddatemonth: parseInt(edm),
+            enddateyear: parseInt(edy),
+            description: parseInt(des),
+          },
+          refetchQueries: [
+            {
+              query: getStudentJobsInfoQuery,
+              variables: { id: this.state.id },
             },
-            errormessages: {},
-            newform: false,
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          this.setState({
-            errormessages: {
-              companynameerror: error.response.data,
-            },
-          });
+          ],
         });
+
+        this.setState({
+          jobs: [...this.state.jobs, job],
+          job: {
+            companyname: "",
+            title: "",
+            startdatemonth: "",
+            startdateyear: "",
+            enddatemonth: "",
+            enddateyear: "",
+            description: "",
+          },
+          errormessages: {},
+          newform: false,
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 
@@ -275,33 +247,31 @@ class WorkDetails extends React.Component {
     });
   };
 
-  handleDelete = (companyname) => {
-    axios
-      .delete("http://localhost:3001/student/workinfo/delete", {
-        data: { id: this.state.id, companyname },
-      })
-      .then((response) => {
-        console.log(response);
-
-        this.getInfo();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   render() {
+    let data = this.props.data;
+    console.log(data);
+
+    let message = null;
+    let jobs = null;
+    if (!data.loading) {
+      jobs = data.student.jobs;
+    }
+
+    if (jobs === null || jobs.length === 0) {
+      message = "Where is somewhere you have worked?";
+    } else message = "";
+
     let jobsList = "";
     let newjobform = "";
 
-    if (this.state.jobs === undefined || this.state.jobs.length === 0)
-      jobsList = "";
+    if (jobs === null || jobs.length === 0) jobsList = "";
     else
-      jobsList = this.state.jobs.map((job) => (
+      jobsList = jobs.map((job) => (
         <WorkContainer
+          key={job._id}
+          jobid={job._id}
           id={this.state.id}
           job={job}
-          delete={this.handleDelete}
         />
       ));
 
@@ -342,7 +312,7 @@ class WorkDetails extends React.Component {
           Work Experience
         </Card.Title>
         <Form.Label style={{ color: "blue", padding: "0 24px" }}>
-          {this.state.message}
+          {message}
         </Form.Label>
         <Container style={{ maxHeight: "800px", overflowY: "scroll" }}>
           {jobsList}
@@ -355,4 +325,11 @@ class WorkDetails extends React.Component {
   }
 }
 
-export default WorkDetails;
+export default compose(
+  graphql(getStudentJobsInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(addStudentWorkInfoMutation, {
+    name: "addStudentWorkInfoMutation",
+  })
+)(WorkDetails);

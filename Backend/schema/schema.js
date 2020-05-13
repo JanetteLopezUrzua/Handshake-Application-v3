@@ -91,7 +91,7 @@ const StudentType = new GraphQLObjectType({
         return parent.schools;
       },
     },
-    works: {
+    jobs: {
       type: new GraphQLList(WorkType),
       resolve(parent, args) {
         return parent.jobs;

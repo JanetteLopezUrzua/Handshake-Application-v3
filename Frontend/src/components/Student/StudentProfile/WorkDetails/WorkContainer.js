@@ -1,7 +1,12 @@
 import React from "react";
-import axios from "axios";
 import DisplayWork from "./DisplayWork";
 import EditWork from "./EditWork";
+import { graphql, compose } from "react-apollo";
+import { getStudentJobsInfoQuery } from "../../../queries/Student/auth_and_profile_queries";
+import {
+  deleteStudentWorkInfoMutation,
+  updateStudentWorkInfoMutation,
+} from "../../../mutation/Student/auth_and_profile_mutations";
 
 class WorkContainer extends React.Component {
   constructor(props) {
@@ -9,20 +14,29 @@ class WorkContainer extends React.Component {
 
     this.state = {
       id: "",
-      job: this.props.job,
+      jobid: "",
+      job: {
+        companyname: props.job.companyname,
+        title: props.job.title,
+        startdatemonth: props.job.startdatemonth,
+        startdateyear: props.job.startdateyear,
+        enddatemonth: props.job.enddatemonth,
+        enddateyear: props.job.enddateyear,
+        description: props.job.description,
+      },
       editWasTriggered: false,
-      errormessage: "",
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id });
+  static getDerivedStateFromProps = (props) => ({
+    id: props.id,
+    jobid: props.jobid,
+  });
 
   handleClick = (e) => {
     e.preventDefault();
 
     this.setState({ editWasTriggered: true });
-
-    // this.getInfo();
   };
 
   companyNameChangeHandler = (e) => {
@@ -81,7 +95,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
 
     const wspatt = new RegExp("^ *$");
@@ -101,32 +115,35 @@ class WorkContainer extends React.Component {
         errormessage: "End year can't be greater than start year.",
       });
     } else {
-      const data = {
-        id: this.state.id,
-        companyname: this.state.job.companyname,
-        title: this.state.job.title,
-        startdatemonth: this.state.job.startdatemonth,
-        startdateyear: this.state.job.startdateyear,
-        enddatemonth: this.state.job.enddatemonth,
-        enddateyear: this.state.job.enddateyear,
-        description: this.state.job.description,
-      };
-
-      axios
-        .post("http://localhost:3001/student/workinfo", data)
-        .then((response) => {
-          console.log(response);
-          this.setState({
-            editWasTriggered: false,
-            errormessage: "",
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          this.setState({
-            job: "",
-          });
+      try {
+        await this.props.updateStudentWorkInfoMutation({
+          variables: {
+            id: this.state.id,
+            jobid: this.state.jobid,
+            startdatemonth: parseInt(this.state.job.startdatemonth),
+            startdateyear: parseInt(this.state.job.startdateyear),
+            enddatemonth: parseInt(this.state.job.enddatemonth),
+            enddateyear: parseInt(this.state.job.enddateyear),
+            description: parseInt(this.state.job.description),
+          },
+          refetchQueries: [
+            {
+              query: getStudentJobsInfoQuery,
+              variables: { id: this.state.id },
+            },
+          ],
         });
+
+        this.setState({
+          editWasTriggered: false,
+          errormessage: "",
+        });
+      } catch (err) {
+        console.log(err.message);
+        this.setState({
+          job: "",
+        });
+      }
     }
   };
 
@@ -137,9 +154,31 @@ class WorkContainer extends React.Component {
     });
   };
 
-  handleDelete = (companyname, e) => {
+  handleDelete = async (e) => {
     e.preventDefault();
-    this.props.delete(companyname);
+    const { id } = this.state;
+    const { jobid } = this.state;
+
+    try {
+      await this.props.deleteStudentWorkInfoMutation({
+        variables: {
+          id: id,
+          jobid: jobid,
+        },
+        refetchQueries: [
+          {
+            query: getStudentJobsInfoQuery,
+            variables: { id: id },
+          },
+        ],
+      });
+
+      this.setState({
+        editWasTriggered: false,
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   render() {
@@ -175,4 +214,14 @@ class WorkContainer extends React.Component {
   }
 }
 
-export default WorkContainer;
+export default compose(
+  graphql(getStudentJobsInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(deleteStudentWorkInfoMutation, {
+    name: "deleteStudentWorkInfoMutation",
+  }),
+  graphql(updateStudentWorkInfoMutation, {
+    name: "updateStudentWorkInfoMutation",
+  })
+)(WorkContainer);

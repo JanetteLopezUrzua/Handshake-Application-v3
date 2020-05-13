@@ -72,7 +72,16 @@ const getStudentSchoolsInfoQuery = gql`
 const getStudentJobsInfoQuery = gql`
   query($id: ID) {
     student(id: $id) {
-      works
+      jobs {
+        _id
+        companyname
+        title
+        startdatemonth
+        startdateyear
+        enddatemonth
+        enddateyear
+        description
+      }
     }
   }
 `;

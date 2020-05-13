@@ -68,6 +68,21 @@ const DisplayWork = (props) => {
     description = "";
   }
 
+  let months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
   let noenddate = "";
   if (enddatemonth === "" || enddateyear === "") {
     noenddate = "Present";
@@ -102,8 +117,8 @@ const DisplayWork = (props) => {
         </Row>
         <Card.Subtitle className="schooldegree">{title}</Card.Subtitle>
         <Card.Text className="schooldate">
-          {startdatemonth} {startdateyear} - {enddatemonth} {enddateyear}{" "}
-          {noenddate}
+          {months[startdatemonth]} {startdateyear} - {months[enddatemonth]}{" "}
+          {enddateyear} {noenddate}
         </Card.Text>
         <Card.Text className="schooldata">{description}</Card.Text>
       </Container>
@@ -124,8 +139,8 @@ const DisplayWork = (props) => {
         </Row>
         <Card.Subtitle className="schooldegree">{title}</Card.Subtitle>
         <Card.Text className="schooldate">
-          {startdatemonth} {startdateyear} - {enddatemonth} {enddateyear}{" "}
-          {noenddate}
+          {months[startdatemonth]} {startdateyear} - {months[enddatemonth]}{" "}
+          {enddateyear} {noenddate}
         </Card.Text>
         <Card.Text className="schooldata">{description}</Card.Text>
       </Container>

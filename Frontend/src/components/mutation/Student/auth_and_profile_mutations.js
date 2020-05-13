@@ -150,6 +150,64 @@ const updateStudentEducationInfoMutation = gql`
   }
 `;
 
+const addStudentWorkInfoMutation = gql`
+  mutation(
+    $id: ID
+    $companyname: String
+    $title: String
+    $startdatemonth: Int
+    $startdateyear: Int
+    $enddatemonth: Int
+    $enddateyear: Int
+    $description: String
+  ) {
+    addStudentWorkInfo(
+      id: $id
+      companyname: $companyname
+      title: $title
+      startdatemonth: $startdatemonth
+      startdateyear: $startdateyear
+      enddatemonth: $enddatemonth
+      enddateyear: $enddateyear
+      description: $description
+    ) {
+      _id
+    }
+  }
+`;
+
+const deleteStudentWorkInfoMutation = gql`
+  mutation($id: ID, $jobid: ID) {
+    deleteStudentWorkInfo(id: $id, jobid: $jobid) {
+      _id
+    }
+  }
+`;
+
+const updateStudentWorkInfoMutation = gql`
+  mutation(
+    $id: ID
+    $jobid: ID
+    $startdatemonth: Int
+    $startdateyear: Int
+    $enddatemonth: Int
+    $enddateyear: Int
+    $description: String
+  ) {
+    updateStudentWorkInfo(
+      id: $id
+      jobid: $jobid
+      startdatemonth: $startdatemonth
+      startdateyear: $startdateyear
+      enddatemonth: $enddatemonth
+      enddateyear: $enddateyear
+      description: $description
+    ) {
+      _id
+    }
+  }
+`;
+
 export {
   addStudentMutation,
   loginStudentMutation,
@@ -161,4 +219,7 @@ export {
   addStudentEducationInfoMutation,
   deleteStudentEducationInfoMutation,
   updateStudentEducationInfoMutation,
+  addStudentWorkInfoMutation,
+  deleteStudentWorkInfoMutation,
+  updateStudentWorkInfoMutation,
 };
