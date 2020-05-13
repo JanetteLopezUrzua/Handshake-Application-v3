@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -6,20 +6,37 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 
 const NewFormEducation = (props) => (
-  <Container style={{
-    paddingRight: '0', paddingLeft: '10px', marginBottom: '30px', cursor: 'pointer'
-  }}
+  <Container
+    style={{
+      paddingRight: "0",
+      paddingLeft: "10px",
+      marginBottom: "30px",
+      cursor: "pointer",
+    }}
   >
     <Form.Label className="labels">Add New School</Form.Label>
     <Form.Group controlId="Schoolname">
       <Form.Label className="labels">School Name</Form.Label>
-      <Form.Control onChange={props.schoolnamechange} name="name" type="text" placeholder={props.school.schoolname} />
+      <Form.Control
+        onChange={props.schoolnamechange}
+        name="name"
+        type="text"
+        placeholder={props.school.schoolname}
+      />
       <p className="errormessage">{props.errormessages.schoolnameerror}</p>
     </Form.Group>
     <Form.Group controlId="degree">
       <Form.Label className="labels">Education Level</Form.Label>
-      <Form.Control as="select" onChange={props.degreechange} name="degree" type="text" placeholder={props.school.degree}>
-        <option value="" hidden> </option>
+      <Form.Control
+        as="select"
+        onChange={props.degreechange}
+        name="degree"
+        type="text"
+        placeholder={props.school.degree}
+      >
+        <option value="" hidden>
+          {" "}
+        </option>
         <option>High school</option>
         <option>Associates</option>
         <option>Certificate</option>
@@ -36,25 +53,40 @@ const NewFormEducation = (props) => (
       <Form.Label className="labels">End Date</Form.Label>
       <Row>
         <Col>
-          <Form.Control as="select" onChange={props.passingmonthchange} name="month" type="text" placeholder={props.school.passingmonth}>
-            <option value="" hidden>{props.school.passingmonth}</option>
-            <option value="January">January</option>
-            <option value="February">February</option>
-            <option value="March">March</option>
-            <option value="April">April</option>
-            <option value="May">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
+          <Form.Control
+            as="select"
+            onChange={props.passingmonthchange}
+            name="month"
+            type="text"
+            placeholder={props.school.passingmonth}
+          >
+            <option value="" hidden>
+              {props.school.passingmonth}
+            </option>
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
           </Form.Control>
         </Col>
         <Col>
-          <Form.Control as="select" onChange={props.passingyearchange} name="year" type="number">
-            <option value="" hidden>{props.school.passingyear}</option>
+          <Form.Control
+            as="select"
+            onChange={props.passingyearchange}
+            name="year"
+            type="number"
+          >
+            <option value="" hidden>
+              {props.school.passingyear}
+            </option>
             <option value="2030">2030</option>
             <option value="2029">2029</option>
             <option value="2028">2028</option>
@@ -153,20 +185,39 @@ const NewFormEducation = (props) => (
     </Form.Group>
     <Form.Group controlId="major">
       <Form.Label className="labels">Major</Form.Label>
-      <Form.Control onChange={props.majorchange} name="major" type="text" placeholder={props.school.major} />
+      <Form.Control
+        onChange={props.majorchange}
+        name="major"
+        type="text"
+        placeholder={props.school.major}
+      />
     </Form.Group>
     <Form.Group controlId="gpa">
       <Form.Label className="labels">Cumulative GPA</Form.Label>
-      <Form.Control onChange={props.gpachange} name="gpa" type="number" placeholder={props.school.gpa} />
+      <Form.Control
+        onChange={props.gpachange}
+        name="gpa"
+        type="number"
+        placeholder={props.school.gpa}
+      />
     </Form.Group>
     <Form.Group controlId="location">
       <Form.Label className="labels">School Location</Form.Label>
-      <Form.Control onChange={props.locationchange} name="location" type="text" placeholder={props.school.location} />
+      <Form.Control
+        onChange={props.locationchange}
+        name="location"
+        type="text"
+        placeholder={props.school.location}
+      />
     </Form.Group>
     <Row>
       <Col style={{ textAlign: "right" }}>
-        <Button className="cancel" onClick={props.cancel}>Cancel</Button>
-        <Button className="save" onClick={props.save}>Save</Button>
+        <Button className="cancel" onClick={props.cancel}>
+          Cancel
+        </Button>
+        <Button className="save" onClick={props.save}>
+          Save
+        </Button>
       </Col>
     </Row>
   </Container>

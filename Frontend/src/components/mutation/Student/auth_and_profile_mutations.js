@@ -88,6 +88,68 @@ const updateStudentContactInfoMutation = gql`
   }
 `;
 
+const addStudentEducationInfoMutation = gql`
+  mutation(
+    $id: ID
+    $name: String
+    $primaryschool: String
+    $location: String
+    $degree: String
+    $major: String
+    $passingmonth: Int
+    $passingyear: Int
+    $gpa: String
+  ) {
+    addStudentEducationInfo(
+      id: $id
+      name: $name
+      primaryschool: $primaryschool
+      location: $location
+      degree: $degree
+      major: $major
+      passingmonth: $passingmonth
+      passingyear: $passingyear
+      gpa: $gpa
+    ) {
+      _id
+    }
+  }
+`;
+
+const deleteStudentEducationInfoMutation = gql`
+  mutation($id: ID, $schoolid: ID) {
+    deleteStudentEducationInfo(id: $id, schoolid: $schoolid) {
+      _id
+    }
+  }
+`;
+
+const updateStudentEducationInfoMutation = gql`
+  mutation(
+    $id: ID
+    $schoolid: ID
+    $location: String
+    $degree: String
+    $major: String
+    $passingmonth: Int
+    $passingyear: Int
+    $gpa: String
+  ) {
+    updateStudentEducationInfo(
+      id: $id
+      schoolid: $schoolid
+      location: $location
+      degree: $degree
+      major: $major
+      passingmonth: $passingmonth
+      passingyear: $passingyear
+      gpa: $gpa
+    ) {
+      _id
+    }
+  }
+`;
+
 export {
   addStudentMutation,
   loginStudentMutation,
@@ -96,4 +158,7 @@ export {
   updateStudentBasicInfoMutation,
   updateStudentCareerObjectiveMutation,
   updateStudentContactInfoMutation,
+  addStudentEducationInfoMutation,
+  deleteStudentEducationInfoMutation,
+  updateStudentEducationInfoMutation,
 };

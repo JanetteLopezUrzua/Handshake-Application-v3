@@ -1,9 +1,7 @@
 import React from "react";
 import axios from "axios";
-// import cookie from 'react-cookies';
 import DisplayWork from "./DisplayWork";
 import EditWork from "./EditWork";
-
 
 class WorkContainer extends React.Component {
   constructor(props) {
@@ -17,7 +15,7 @@ class WorkContainer extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   handleClick = (e) => {
     e.preventDefault();
@@ -27,7 +25,7 @@ class WorkContainer extends React.Component {
     // this.getInfo();
   };
 
-  companyNameChangeHandler = e => {
+  companyNameChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.companyname = e.target.value;
     this.setState({
@@ -35,7 +33,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  titleChangeHandler = e => {
+  titleChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.title = e.target.value;
     this.setState({
@@ -43,7 +41,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  startDateMonthChangeHandler = e => {
+  startDateMonthChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.startdatemonth = e.target.value;
     this.setState({
@@ -51,7 +49,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  startDateYearChangeHandler = e => {
+  startDateYearChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.startdateyear = e.target.value;
     this.setState({
@@ -59,7 +57,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  endDateMonthChangeHandler = e => {
+  endDateMonthChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.enddatemonth = e.target.value;
     this.setState({
@@ -67,7 +65,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  endDateYearChangeHandler = e => {
+  endDateYearChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.enddateyear = e.target.value;
     this.setState({
@@ -75,7 +73,7 @@ class WorkContainer extends React.Component {
     });
   };
 
-  descriptionChangeHandler = e => {
+  descriptionChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.description = e.target.value;
     this.setState({
@@ -87,14 +85,20 @@ class WorkContainer extends React.Component {
     e.preventDefault();
 
     const wspatt = new RegExp("^ *$");
-    if (this.state.job.enddatemonth === "" || wspatt.test(this.state.job.enddatemonth) || this.state.job.enddatemonth === undefined
-    || this.state.job.enddateyear === "" || wspatt.test(this.state.job.enddateyear) || this.state.job.enddateyear === undefined) {
+    if (
+      this.state.job.enddatemonth === "" ||
+      wspatt.test(this.state.job.enddatemonth) ||
+      this.state.job.enddatemonth === undefined ||
+      this.state.job.enddateyear === "" ||
+      wspatt.test(this.state.job.enddateyear) ||
+      this.state.job.enddateyear === undefined
+    ) {
       this.setState({
-        errormessage: "Complete end date must be entered."
+        errormessage: "Complete end date must be entered.",
       });
     } else if (this.state.job.startdateyear > this.state.job.enddateyear) {
       this.setState({
-        errormessage: "End year can't be greater than start year."
+        errormessage: "End year can't be greater than start year.",
       });
     } else {
       const data = {
@@ -106,18 +110,18 @@ class WorkContainer extends React.Component {
         enddatemonth: this.state.job.enddatemonth,
         enddateyear: this.state.job.enddateyear,
         description: this.state.job.description,
-
       };
 
-      axios.post("http://localhost:3001/student/workinfo", data)
-        .then(response => {
+      axios
+        .post("http://localhost:3001/student/workinfo", data)
+        .then((response) => {
           console.log(response);
           this.setState({
             editWasTriggered: false,
-            errormessage: ""
+            errormessage: "",
           });
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
           this.setState({
             job: "",
@@ -129,7 +133,7 @@ class WorkContainer extends React.Component {
   handleCancel = () => {
     this.setState({
       job: this.props.job,
-      editWasTriggered: false
+      editWasTriggered: false,
     });
   };
 

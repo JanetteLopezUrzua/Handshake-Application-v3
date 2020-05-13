@@ -1,22 +1,28 @@
-import React from 'react';
-import cookie from 'react-cookies';
+import React from "react";
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import { MdEdit } from 'react-icons/md';
+import { MdEdit } from "react-icons/md";
 
 const DisplayEducation = (props) => {
   let {
     // eslint-disable-next-line prefer-const
-    schoolname, primaryschool, location, degree, major, passingmonth, passingyear, gpa
+    name,
+    primaryschool,
+    location,
+    degree,
+    major,
+    passingmonth,
+    passingyear,
+    gpa,
   } = props.school;
 
   const wspatt = new RegExp("^ *$");
 
-  if (schoolname === null || schoolname === "null" || wspatt.test(schoolname)) {
-    schoolname = "";
+  if (name === null || name === "null" || wspatt.test(name)) {
+    name = "";
   }
   if (location === null || location === "null" || wspatt.test(location)) {
     location = "";
@@ -27,10 +33,20 @@ const DisplayEducation = (props) => {
   if (major === null || major === "null" || wspatt.test(major)) {
     major = "";
   }
-  if (passingmonth === 0 || passingmonth === null || passingmonth === "null" || wspatt.test(passingmonth)) {
+  if (
+    passingmonth === 0 ||
+    passingmonth === null ||
+    passingmonth === "null" ||
+    wspatt.test(passingmonth)
+  ) {
     passingmonth = "";
   }
-  if (passingyear === 0 || passingyear === null || passingyear === "null" || wspatt.test(passingyear)) {
+  if (
+    passingyear === 0 ||
+    passingyear === null ||
+    passingyear === "null" ||
+    wspatt.test(passingyear)
+  ) {
     passingyear = "";
   }
   if (gpa === 0 || gpa === null || gpa === "null" || wspatt.test(gpa)) {
@@ -40,13 +56,35 @@ const DisplayEducation = (props) => {
   let primarydisplay = "";
   if (primaryschool === "true") {
     primarydisplay = (
-      <p style={{
-        backgroundColor: "#bbb", color: "white", display: "inline", padding: "2px", borderRadius: "5px", fontSize: "10px"
-      }}
-      >Primary School
+      <p
+        style={{
+          backgroundColor: "#bbb",
+          color: "white",
+          display: "inline",
+          padding: "2px",
+          borderRadius: "5px",
+          fontSize: "10px",
+        }}
+      >
+        Primary School
       </p>
     );
   }
+
+  let months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   let majordisplay = "";
   if (major !== "") majordisplay = "Major:";
@@ -61,16 +99,26 @@ const DisplayEducation = (props) => {
   else locationdisplay = "";
 
   let container = "";
-  if (cookie.load('id') === props.id && cookie.load('user') === "student") {
+  if (
+    localStorage.getItem("id") === props.id &&
+    localStorage.getItem("type") === "Student"
+  ) {
     container = (
       <Container
         onClick={props.clicked}
         style={{
-          paddingRight: '0', paddingLeft: '10px', marginBottom: '30px', cursor: 'pointer'
+          paddingRight: "0",
+          paddingLeft: "10px",
+          marginBottom: "30px",
+          cursor: "pointer",
         }}
       >
         <Row>
-          <Col sm={10}><Card.Title className="schoolname">{schoolname}  {primarydisplay}</Card.Title></Col>
+          <Col sm={10}>
+            <Card.Title className="schoolname">
+              {name} {primarydisplay}
+            </Card.Title>
+          </Col>
           <Col sm={2} style={{ textAlign: "right" }}>
             <Button className="editbutton" onClick={props.clicked}>
               <MdEdit style={{ color: "black" }} />
@@ -78,36 +126,54 @@ const DisplayEducation = (props) => {
           </Col>
         </Row>
         <Card.Subtitle className="schooldegree">{degree}</Card.Subtitle>
-        <Card.Text className="schooldate">{ passingmonth } {passingyear}</Card.Text>
-        <Card.Text className="schooldata"><span style={{ fontWeight: "bold" }}>{majordisplay}</span> { major }</Card.Text>
-        <Card.Text className="schooldata"><span style={{ fontWeight: "bold" }}>{gpadisplay}</span> { gpa }</Card.Text>
-        <Card.Text className="schooldata"><span style={{ fontWeight: "bold" }}>{locationdisplay}</span> { location }</Card.Text>
+        <Card.Text className="schooldate">
+          {months[passingmonth]} {passingyear}
+        </Card.Text>
+        <Card.Text className="schooldata">
+          <span style={{ fontWeight: "bold" }}>{majordisplay}</span> {major}
+        </Card.Text>
+        <Card.Text className="schooldata">
+          <span style={{ fontWeight: "bold" }}>{gpadisplay}</span> {gpa}
+        </Card.Text>
+        <Card.Text className="schooldata">
+          <span style={{ fontWeight: "bold" }}>{locationdisplay}</span>{" "}
+          {location}
+        </Card.Text>
       </Container>
     );
   } else {
     container = (
       <Container
         style={{
-          paddingRight: '0', paddingLeft: '10px', marginBottom: '30px'
+          paddingRight: "0",
+          paddingLeft: "10px",
+          marginBottom: "30px",
         }}
       >
         <Row>
-          <Col><Card.Title className="schoolname">{schoolname}</Card.Title></Col>
+          <Col>
+            <Card.Title className="schoolname">{name}</Card.Title>
+          </Col>
         </Row>
         <Card.Subtitle className="schooldegree">{degree}</Card.Subtitle>
-        <Card.Text className="schooldate">{ passingmonth } {passingyear}</Card.Text>
-        <Card.Text className="schooldata"><span style={{ fontWeight: "bold" }}>{majordisplay}</span> { major }</Card.Text>
-        <Card.Text className="schooldata"><span style={{ fontWeight: "bold" }}>{gpadisplay}</span> { gpa }</Card.Text>
-        <Card.Text className="schooldata"><span style={{ fontWeight: "bold" }}>{locationdisplay}</span> { location }</Card.Text>
+        <Card.Text className="schooldate">
+          {passingmonth} {passingyear}
+        </Card.Text>
+        <Card.Text className="schooldata">
+          <span style={{ fontWeight: "bold" }}>{majordisplay}</span> {major}
+        </Card.Text>
+        <Card.Text className="schooldata">
+          <span style={{ fontWeight: "bold" }}>{gpadisplay}</span> {gpa}
+        </Card.Text>
+        <Card.Text className="schooldata">
+          <span style={{ fontWeight: "bold" }}>{locationdisplay}</span>{" "}
+          {location}
+        </Card.Text>
       </Container>
     );
   }
 
-  return (
-    <div>
-      { container }
-    </div>
-  );
+  return <div>{container}</div>;
 };
 
 export default DisplayEducation;

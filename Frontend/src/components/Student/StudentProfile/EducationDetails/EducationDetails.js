@@ -1,13 +1,17 @@
 import React from "react";
-import axios from "axios";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import cookie from "react-cookies";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import EducationContainer from "./EducationContainer";
 import NewFormEducation from "./NewFormEducation";
+import { graphql, compose } from "react-apollo";
+import { getStudentSchoolsInfoQuery } from "../../../queries/Student/auth_and_profile_queries";
+import {
+  addStudentEducationInfoMutation,
+  deleteStudentEducationInfoMutation,
+} from "../../../mutation/Student/auth_and_profile_mutations";
 
 class EducationDetails extends React.Component {
   constructor() {
@@ -33,39 +37,6 @@ class EducationDetails extends React.Component {
   }
 
   static getDerivedStateFromProps = (props) => ({ id: props.id });
-
-  componentDidMount() {
-    this.getInfo();
-  }
-
-  getInfo = () => {
-    axios
-      .get(`http://localhost:3001/student/educationinfo/${this.state.id}`)
-      .then((response) => {
-        const info = response.data;
-
-        this.setState({
-          schools: info.schools,
-        });
-
-        if (
-          this.state.schools === undefined ||
-          this.state.schools.length === 0
-        ) {
-          this.setState({
-            message:
-              "Where is somewhere you have studied? - Add your current school here so you can be found on the students list.",
-          });
-        } else {
-          this.setState({
-            message: "",
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
 
   addSchool = (e) => {
     e.preventDefault();
@@ -131,7 +102,7 @@ class EducationDetails extends React.Component {
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
     const wspatt = new RegExp("^ *$");
     if (
@@ -194,18 +165,6 @@ class EducationDetails extends React.Component {
       const gpascore =
         this.state.school.gpa === undefined ? null : this.state.school.gpa;
 
-      const data = {
-        id: this.state.id,
-        schoolname: name,
-        primaryschool: "false",
-        location: loc,
-        degree: deg,
-        major: maj,
-        passingmonth: pm,
-        passingyear: py,
-        gpa: gpascore,
-      };
-
       const school = {
         schoolname: name,
         location: loc,
@@ -216,39 +175,48 @@ class EducationDetails extends React.Component {
         gpa: gpascore,
       };
 
-      axios
-        .post("http://localhost:3001/student/educationinfo/newform", data)
-        .then((response) => {
-          console.log(response);
-          this.setState({
-            schools: [...this.state.schools, school],
-            school: {
-              schoolname: "",
-              location: "",
-              degree: "",
-              major: "",
-              passingmonth: "",
-              passingyear: "",
-              gpa: "",
+      try {
+        await this.props.addStudentEducationInfoMutation({
+          variables: {
+            id: this.state.id,
+            name: name,
+            primaryschool: "false",
+            location: loc,
+            degree: deg,
+            major: maj,
+            passingmonth: parseInt(pm),
+            passingyear: parseInt(py),
+            gpa: gpascore,
+          },
+          refetchQueries: [
+            {
+              query: getStudentSchoolsInfoQuery,
+              variables: { id: this.state.id },
             },
-            errormessages: {
-              schoolnameerror: "",
-              degreeerror: "",
-              passingdateerror: "",
-            },
-            newform: false,
-          });
-
-          this.getInfo();
-        })
-        .catch((error) => {
-          console.log(error);
-          this.setState({
-            errormessages: {
-              schoolnameerror: error.response.data,
-            },
-          });
+          ],
         });
+
+        this.setState({
+          schools: [...this.state.schools, school],
+          school: {
+            schoolname: "",
+            location: "",
+            degree: "",
+            major: "",
+            passingmonth: "",
+            passingyear: "",
+            gpa: "",
+          },
+          errormessages: {
+            schoolnameerror: "",
+            degreeerror: "",
+            passingdateerror: "",
+          },
+          newform: false,
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 
@@ -272,29 +240,49 @@ class EducationDetails extends React.Component {
     });
   };
 
-  handleDelete = (schoolname, degree) => {
-    axios
-      .delete("http://localhost:3001/student/educationinfo/delete", {
-        data: { id: this.state.id, schoolname, degree },
-      })
-      .then((response) => {
-        console.log(response);
-        this.getInfo();
-      })
-      .catch((error) => {
-        console.log(error);
+  handleDelete = async (schoolid) => {
+    try {
+      await this.props.deleteStudentEducationInfoMutation({
+        variables: {
+          id: this.state.id,
+          schoolid: schoolid,
+        },
+        refetchQueries: [
+          {
+            query: getStudentSchoolsInfoQuery,
+            variables: { id: this.state.id },
+          },
+        ],
       });
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   render() {
+    let data = this.props.data;
+    console.log(data);
+
+    let message = null;
+    let schools = null;
+    if (!data.loading) {
+      schools = data.student.schools;
+    }
+
+    if (schools === null || schools.length === 0) {
+      message =
+        "Where is somewhere you have studied? - Add your current school here so you can be found on the students list.";
+    } else message = "";
+
     let schoolsList = "";
     let newschoolform = "";
 
-    if (this.state.schools === undefined || this.state.schools.length === 0)
-      schoolsList = "";
+    if (schools === null || schools.length === 0) schoolsList = "";
     else
-      schoolsList = this.state.schools.map((school) => (
+      schoolsList = schools.map((school) => (
         <EducationContainer
+          key={school._id}
+          schoolid={school._id}
           id={this.state.id}
           school={school}
           delete={this.handleDelete}
@@ -322,8 +310,8 @@ class EducationDetails extends React.Component {
 
     let button = "";
     if (
-      cookie.load("id") === this.state.id &&
-      cookie.load("user") === "student"
+      localStorage.getItem("id") === this.state.id &&
+      localStorage.getItem("type") === "Student"
     ) {
       button = (
         <Button onClick={this.addSchool} className="BottomAddButton">
@@ -338,7 +326,7 @@ class EducationDetails extends React.Component {
           Education
         </Card.Title>
         <Form.Label style={{ color: "blue", padding: "0 24px" }}>
-          {this.state.message}
+          {message}
         </Form.Label>
         <Container style={{ maxHeight: "800px", overflowY: "scroll" }}>
           {schoolsList}
@@ -351,4 +339,14 @@ class EducationDetails extends React.Component {
   }
 }
 
-export default EducationDetails;
+export default compose(
+  graphql(getStudentSchoolsInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(addStudentEducationInfoMutation, {
+    name: "addStudentEducationInfoMutation",
+  }),
+  graphql(deleteStudentEducationInfoMutation, {
+    name: "deleteStudentEducationInfoMutation",
+  })
+)(EducationDetails);

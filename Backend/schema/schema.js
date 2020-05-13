@@ -19,6 +19,12 @@ const {
   studentUpdateBasicInfo,
   studentUpdateCareerObjective,
   studentUpdateContactInfo,
+  studentaddEducationInfo,
+  studentUpdateEducationInfo,
+  studentDeleteEducationInfo,
+  studentaddWorkInfo,
+  studentUpdateWorkInfo,
+  studentDeleteWorkInfo,
 } = require("../mutations/Student/profile");
 const {
   companyNewJob,
@@ -85,10 +91,10 @@ const StudentType = new GraphQLObjectType({
         return parent.schools;
       },
     },
-    work: {
-      type: WorkType,
+    works: {
+      type: new GraphQLList(WorkType),
       resolve(parent, args) {
-        return authors.find((author) => author.id === parent.authorId);
+        return parent.jobs;
       },
     },
   }),
@@ -451,6 +457,90 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return studentUpdateContactInfo(args);
+      },
+    },
+    addStudentEducationInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        primaryschool: { type: GraphQLString },
+        location: { type: GraphQLString },
+        degree: { type: GraphQLString },
+        major: { type: GraphQLString },
+        passingmonth: { type: GraphQLInt },
+        passingyear: { type: GraphQLInt },
+        gpa: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentaddEducationInfo(args);
+      },
+    },
+    updateStudentEducationInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        schoolid: { type: GraphQLID },
+        location: { type: GraphQLString },
+        degree: { type: GraphQLString },
+        major: { type: GraphQLString },
+        passingmonth: { type: GraphQLInt },
+        passingyear: { type: GraphQLInt },
+        gpa: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentUpdateEducationInfo(args);
+      },
+    },
+    deleteStudentEducationInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        schoolid: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return studentDeleteEducationInfo(args);
+      },
+    },
+    addStudentWorkInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        companyname: { type: GraphQLString },
+        title: { type: GraphQLString },
+        startdatemonth: { type: GraphQLInt },
+        startdateyear: { type: GraphQLInt },
+        enddatemonth: { type: GraphQLInt },
+        enddateyear: { type: GraphQLInt },
+        description: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentaddWorkInfo(args);
+      },
+    },
+    updateStudentWorkInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        jobid: { type: GraphQLID },
+        startdatemonth: { type: GraphQLInt },
+        startdateyear: { type: GraphQLInt },
+        enddatemonth: { type: GraphQLInt },
+        enddateyear: { type: GraphQLInt },
+        description: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return studentUpdateWorkInfo(args);
+      },
+    },
+    deleteStudentWorkInfo: {
+      type: StudentType,
+      args: {
+        id: { type: GraphQLID },
+        jobid: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return studentDeleteWorkInfo(args);
       },
     },
     applyToJob: {

@@ -51,9 +51,37 @@ const getStudentContactInfoQuery = gql`
   }
 `;
 
+const getStudentSchoolsInfoQuery = gql`
+  query($id: ID) {
+    student(id: $id) {
+      schools {
+        _id
+        name
+        primaryschool
+        location
+        degree
+        major
+        passingmonth
+        passingyear
+        gpa
+      }
+    }
+  }
+`;
+
+const getStudentJobsInfoQuery = gql`
+  query($id: ID) {
+    student(id: $id) {
+      works
+    }
+  }
+`;
+
 export {
   getStudentPictureInfoQuery,
   getStudentBasicInfoQuery,
   getStudentCareerObjectiveQuery,
   getStudentContactInfoQuery,
+  getStudentSchoolsInfoQuery,
+  getStudentJobsInfoQuery,
 };

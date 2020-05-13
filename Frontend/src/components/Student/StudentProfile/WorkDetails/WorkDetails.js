@@ -4,11 +4,9 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import cookie from 'react-cookies';
 import NavDropdown from "react-bootstrap/NavDropdown";
 import WorkContainer from "./WorkContainer";
 import NewFormWork from "./NewFormWork";
-
 
 class WorkDetails extends React.Component {
   constructor() {
@@ -28,19 +26,20 @@ class WorkDetails extends React.Component {
         enddateyear: "",
         description: "",
       },
-      errormessages: {}
+      errormessages: {},
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id })
+  static getDerivedStateFromProps = (props) => ({ id: props.id });
 
   componentDidMount() {
     this.getInfo();
   }
 
   getInfo = () => {
-    axios.get(`http://localhost:3001/student/workinfo/${this.state.id}`)
-      .then(response => {
+    axios
+      .get(`http://localhost:3001/student/workinfo/${this.state.id}`)
+      .then((response) => {
         const info = response.data;
 
         this.setState({
@@ -57,20 +56,20 @@ class WorkDetails extends React.Component {
           });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
 
-  addWork=(e) => {
+  addWork = (e) => {
     e.preventDefault();
 
     this.setState({
       newform: true,
     });
-  }
+  };
 
-  companyNameChangeHandler = e => {
+  companyNameChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.companyname = e.target.value;
     this.setState({
@@ -78,7 +77,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  titleChangeHandler = e => {
+  titleChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.title = e.target.value;
     this.setState({
@@ -86,7 +85,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  startDateMonthChangeHandler = e => {
+  startDateMonthChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.startdatemonth = e.target.value;
     this.setState({
@@ -94,7 +93,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  startDateYearChangeHandler = e => {
+  startDateYearChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.startdateyear = e.target.value;
     this.setState({
@@ -102,7 +101,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  endDateMonthChangeHandler = e => {
+  endDateMonthChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.enddatemonth = e.target.value;
     this.setState({
@@ -110,7 +109,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  endDateYearChangeHandler = e => {
+  endDateYearChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.enddateyear = e.target.value;
     this.setState({
@@ -118,7 +117,7 @@ class WorkDetails extends React.Component {
     });
   };
 
-  descriptionChangeHandler = e => {
+  descriptionChangeHandler = (e) => {
     const job = { ...this.state.job };
     job.description = e.target.value;
     this.setState({
@@ -130,46 +129,85 @@ class WorkDetails extends React.Component {
     e.preventDefault();
 
     const wspatt = new RegExp("^ *$");
-    if (this.state.job.companyname === "" || wspatt.test(this.state.job.companyname) || this.state.job.companyname === undefined) {
+    if (
+      this.state.job.companyname === "" ||
+      wspatt.test(this.state.job.companyname) ||
+      this.state.job.companyname === undefined
+    ) {
       this.setState({
         errormessages: {
-          companynameerror: "Company name must be entered."
-        }
+          companynameerror: "Company name must be entered.",
+        },
       });
-    } else if (this.state.job.title === "" || wspatt.test(this.state.job.title) || this.state.job.title === undefined) {
+    } else if (
+      this.state.job.title === "" ||
+      wspatt.test(this.state.job.title) ||
+      this.state.job.title === undefined
+    ) {
       this.setState({
         errormessages: {
-          titleerror: "Job title must be entered."
-        }
+          titleerror: "Job title must be entered.",
+        },
       });
-    } else if (this.state.job.startdatemonth === "" || wspatt.test(this.state.job.startdatemonth) || this.state.job.startdatemonth === undefined
-              || this.state.job.startdateyear === "" || wspatt.test(this.state.job.startdateyear) || this.state.job.startdateyear === undefined) {
+    } else if (
+      this.state.job.startdatemonth === "" ||
+      wspatt.test(this.state.job.startdatemonth) ||
+      this.state.job.startdatemonth === undefined ||
+      this.state.job.startdateyear === "" ||
+      wspatt.test(this.state.job.startdateyear) ||
+      this.state.job.startdateyear === undefined
+    ) {
       this.setState({
         errormessages: {
-          startdateerror: "Complete start date must be entered."
-        }
+          startdateerror: "Complete start date must be entered.",
+        },
       });
-    } else if (this.state.job.enddatemonth === "" || wspatt.test(this.state.job.enddatemonth) || this.state.job.enddatemonth === undefined
-    || this.state.job.enddateyear === "" || wspatt.test(this.state.job.enddateyear) || this.state.job.enddateyear === undefined) {
+    } else if (
+      this.state.job.enddatemonth === "" ||
+      wspatt.test(this.state.job.enddatemonth) ||
+      this.state.job.enddatemonth === undefined ||
+      this.state.job.enddateyear === "" ||
+      wspatt.test(this.state.job.enddateyear) ||
+      this.state.job.enddateyear === undefined
+    ) {
       this.setState({
         errormessages: {
-          enddateerror: "Complete end date must be entered."
-        }
+          enddateerror: "Complete end date must be entered.",
+        },
       });
     } else if (this.state.job.startdateyear > this.state.job.enddateyear) {
       this.setState({
         errormessages: {
-          yearerror: "End year can't be greater than start year."
-        }
+          yearerror: "End year can't be greater than start year.",
+        },
       });
     } else {
-      const name = (this.state.job.companyname === undefined) ? null : this.state.job.companyname;
-      const ti = (this.state.job.title === undefined) ? null : this.state.job.title;
-      const sdm = (this.state.job.startdatemonth === undefined) ? null : this.state.job.startdatemonth;
-      const sdy = (this.state.job.startdateyear === undefined) ? null : this.state.job.startdateyear;
-      const edm = (this.state.job.enddatemonth === undefined) ? null : this.state.job.enddatemonth;
-      const edy = (this.state.job.enddateyear === undefined) ? null : this.state.job.enddateyear;
-      const des = (this.state.job.description === undefined) ? null : this.state.job.description;
+      const name =
+        this.state.job.companyname === undefined
+          ? null
+          : this.state.job.companyname;
+      const ti =
+        this.state.job.title === undefined ? null : this.state.job.title;
+      const sdm =
+        this.state.job.startdatemonth === undefined
+          ? null
+          : this.state.job.startdatemonth;
+      const sdy =
+        this.state.job.startdateyear === undefined
+          ? null
+          : this.state.job.startdateyear;
+      const edm =
+        this.state.job.enddatemonth === undefined
+          ? null
+          : this.state.job.enddatemonth;
+      const edy =
+        this.state.job.enddateyear === undefined
+          ? null
+          : this.state.job.enddateyear;
+      const des =
+        this.state.job.description === undefined
+          ? null
+          : this.state.job.description;
 
       const data = {
         id: this.state.id,
@@ -192,8 +230,9 @@ class WorkDetails extends React.Component {
         description: des,
       };
 
-      axios.post("http://localhost:3001/student/workinfo/newform", data)
-        .then(response => {
+      axios
+        .post("http://localhost:3001/student/workinfo/newform", data)
+        .then((response) => {
           console.log(response);
           this.setState({
             jobs: [...this.state.jobs, job],
@@ -207,15 +246,15 @@ class WorkDetails extends React.Component {
               description: "",
             },
             errormessages: {},
-            newform: false
+            newform: false,
           });
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
           this.setState({
             errormessages: {
               companynameerror: error.response.data,
-            }
+            },
           });
         });
     }
@@ -232,28 +271,39 @@ class WorkDetails extends React.Component {
         enddateyear: "",
         description: "",
       },
-      newform: false
+      newform: false,
     });
   };
 
   handleDelete = (companyname) => {
-    axios.delete("http://localhost:3001/student/workinfo/delete", { data: { id: this.state.id, companyname } })
-      .then(response => {
+    axios
+      .delete("http://localhost:3001/student/workinfo/delete", {
+        data: { id: this.state.id, companyname },
+      })
+      .then((response) => {
         console.log(response);
 
         this.getInfo();
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
-  }
+  };
 
   render() {
     let jobsList = "";
     let newjobform = "";
 
-    if (this.state.jobs === undefined || this.state.jobs.length === 0) jobsList = "";
-    else jobsList = this.state.jobs.map((job) => <WorkContainer id={this.state.id} job={job} delete={this.handleDelete} />);
+    if (this.state.jobs === undefined || this.state.jobs.length === 0)
+      jobsList = "";
+    else
+      jobsList = this.state.jobs.map((job) => (
+        <WorkContainer
+          id={this.state.id}
+          job={job}
+          delete={this.handleDelete}
+        />
+      ));
 
     if (this.state.newform === false) newjobform = "";
     else {
@@ -275,15 +325,27 @@ class WorkDetails extends React.Component {
     }
 
     let button = "";
-    if (cookie.load('id') === this.state.id && cookie.load('user') === "student") {
-      button = <Button onClick={this.addWork} className="BottomAddButton">Add Work Experience</Button>;
+    if (
+      localStorage.getItem("id") === this.state.id &&
+      localStorage.getItem("type") === "Student"
+    ) {
+      button = (
+        <Button onClick={this.addWork} className="BottomAddButton">
+          Add Work Experience
+        </Button>
+      );
     } else button = "";
 
     return (
       <Card style={{ padding: "0" }}>
-        <Card.Title style={{ paddingLeft: "24px", paddingTop: "24px" }}>Work Experience</Card.Title>
-        <Form.Label style={{ color: "blue", padding: "0 24px" }}>{this.state.message}</Form.Label>
-        <Container style={{ maxHeight: "800px", overflowY: "scroll" }}>{jobsList}
+        <Card.Title style={{ paddingLeft: "24px", paddingTop: "24px" }}>
+          Work Experience
+        </Card.Title>
+        <Form.Label style={{ color: "blue", padding: "0 24px" }}>
+          {this.state.message}
+        </Form.Label>
+        <Container style={{ maxHeight: "800px", overflowY: "scroll" }}>
+          {jobsList}
           {newjobform}
         </Container>
         <NavDropdown.Divider style={{ margin: "0" }}></NavDropdown.Divider>

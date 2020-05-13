@@ -1,8 +1,9 @@
 import React from "react";
-import axios from "axios";
-// import cookie from 'react-cookies';
 import DisplayEducation from "./DisplayEducation";
 import EditEducation from "./EditEducation";
+import { graphql, compose } from "react-apollo";
+import { getStudentSchoolsInfoQuery } from "../../../queries/Student/auth_and_profile_queries";
+import { updateStudentEducationInfoMutation } from "../../../mutation/Student/auth_and_profile_mutations";
 
 class EducationContainer extends React.Component {
   constructor(props) {
@@ -10,12 +11,26 @@ class EducationContainer extends React.Component {
 
     this.state = {
       id: "",
-      school: this.props.school,
+      schoolid: "",
+      primaryschool: "",
+      school: {
+        name: props.school.name,
+        location: props.school.location,
+        degree: props.school.degree,
+        major: props.school.major,
+        passingmonth: props.school.passingmonth,
+        passingyear: props.school.passingyear,
+        gpa: props.school.gpa,
+      },
       editWasTriggered: false,
     };
   }
 
-  static getDerivedStateFromProps = (props) => ({ id: props.id });
+  static getDerivedStateFromProps = (props) => ({
+    id: props.id,
+    schoolid: props.schoolid,
+    primaryschool: props.school.primaryschool,
+  });
 
   handleClick = (e) => {
     e.preventDefault();
@@ -79,35 +94,38 @@ class EducationContainer extends React.Component {
     });
   };
 
-  handleSave = (e) => {
+  handleSave = async (e) => {
     e.preventDefault();
 
-    const data = {
-      id: this.state.id,
-      schoolname: this.state.school.schoolname,
-      primaryschool: "false",
-      location: this.state.school.location,
-      degree: this.state.school.degree,
-      major: this.state.school.major,
-      passingmonth: this.state.school.passingmonth,
-      passingyear: this.state.school.passingyear,
-      gpa: this.state.school.gpa,
-    };
-
-    axios
-      .post("http://localhost:3001/student/educationinfo", data)
-      .then((response) => {
-        console.log(response);
-        this.setState({
-          editWasTriggered: false,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-        this.setState({
-          school: "",
-        });
+    try {
+      await this.props.updateStudentEducationInfoMutation({
+        variables: {
+          id: this.state.id,
+          schoolid: this.state.schoolid,
+          location: this.state.school.location,
+          degree: this.state.school.degree,
+          major: this.state.school.major,
+          passingmonth: parseInt(this.state.school.passingmonth),
+          passingyear: parseInt(this.state.school.passingyear),
+          gpa: this.state.school.gpa,
+        },
+        refetchQueries: [
+          {
+            query: getStudentSchoolsInfoQuery,
+            variables: { id: this.state.id },
+          },
+        ],
       });
+
+      this.setState({
+        editWasTriggered: false,
+      });
+    } catch (err) {
+      console.log(err.message);
+      this.setState({
+        school: "",
+      });
+    }
   };
 
   handleCancel = () => {
@@ -117,9 +135,9 @@ class EducationContainer extends React.Component {
     });
   };
 
-  handleDelete = (schoolname, degree, e) => {
-    e.preventDefault();
-    this.props.delete(schoolname, degree);
+  handleDelete = () => {
+    this.props.delete(this.state.schoolid);
+
     this.setState({
       editWasTriggered: false,
     });
@@ -157,4 +175,11 @@ class EducationContainer extends React.Component {
   }
 }
 
-export default EducationContainer;
+export default compose(
+  graphql(getStudentSchoolsInfoQuery, {
+    options: (props) => ({ variables: { id: props.id } }),
+  }),
+  graphql(updateStudentEducationInfoMutation, {
+    name: "updateStudentEducationInfoMutation",
+  })
+)(EducationContainer);
